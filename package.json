@@ -1,5 +1,5 @@
 {
-  "name": "live.nvim",
+  "name": "render.nvim",
   "version": "0.1.0",
   "description": "Realtime live preview server for Neovim",
   "main": "server/index.js",
