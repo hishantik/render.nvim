@@ -30,7 +30,7 @@ function M.start()
 		return
 	end
 
-	local server = vim.fn.stdpath("data") .. "/lazy/live.nvim/server/index.js"
+	local server = vim.fn.stdpath("data") .. "/lazy/render.nvim/server/index.js"
 
 	local cmd = {
 		"node",

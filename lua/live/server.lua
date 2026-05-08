@@ -15,7 +15,7 @@ function M.start()
 		return
 	end
 
-	local root = vim.fn.stdpath("data") .. "/lazy/live.nvim/server"
+	local root = vim.fn.stdpath("data") .. "/lazy/render.nvim/server"
 
 	local server_file = root .. "/index.js"
 
