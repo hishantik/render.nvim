@@ -1,0 +1,28 @@
+{
+  "name": "live.nvim",
+  "version": "0.1.0",
+  "description": "Realtime live preview server for Neovim",
+  "main": "server/index.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node --watch server/index.js"
+  },
+  "keywords": [
+    "neovim",
+    "live-preview",
+    "hot-reload",
+    "websocket",
+    "html",
+    "css",
+    "javascript"
+  ],
+  "author": "Hishantik",
+  "license": "MIT",
+  "dependencies": {
+    "ws": "^8.18.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
