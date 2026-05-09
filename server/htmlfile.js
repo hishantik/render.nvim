@@ -190,7 +190,7 @@ function stripElement(elem, include_index){
 			newElem.attribs = {};
 		}
 
-		newElem.attribs['meta-bracey-element-index'] = elem.index.toString();
+		newElem.attribs['meta-render-element-index'] = elem.index.toString();
 	}
 
 	if(elem.data)

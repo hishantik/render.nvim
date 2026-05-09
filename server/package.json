@@ -1,8 +1,8 @@
 {
-  "name": "bracey",
+  "name": "render",
   "version": "1.0.0",
   "description": "",
-  "main": "bracey.js",
+  "main": "render.js",
   "dependencies": {
     "csslint": "^1.0.5",
     "domhandler": "^2.3.0",
@@ -22,12 +22,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/turbio/bracey.vim.git"
+    "url": "git+https://github.com/turbio/render.vim.git"
   },
   "author": "mason clayton",
   "license": "GPL-2.0",
   "bugs": {
-    "url": "https://github.com/turbio/bracey.vim/issues"
+    "url": "https://github.com/turbio/render.vim/issues"
   },
-  "homepage": "https://github.com/turbio/bracey.vim#readme"
+  "homepage": "https://github.com/turbio/render.vim#readme"
 }

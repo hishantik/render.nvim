@@ -9,15 +9,15 @@ if python_version == 2:
 else:
     from urllib import request as requests
 
-bracey_server_process = None
-url = vim.eval("g:bracey_server_path.':'.g:bracey_server_port")
+render_server_process = None
+url = vim.eval("g:render_server_path.':'.g:render_server_port")
 
 opener = requests.build_opener(requests.ProxyHandler({}))
 
 
 def send(msg):
-    if bracey_server_process is None:
-        print('bracey server is not running!')
+    if render_server_process is None:
+        print('render server is not running!')
         return
 
     if python_version != 2:
@@ -26,49 +26,49 @@ def send(msg):
     try:
         opener.open(url, msg).read()
     except Exception as e:
-        print("bracey error: " + str(e))
+        print("render error: " + str(e))
 
 
 def startServer():
-    global bracey_server_process
-    if bracey_server_process is not None:
+    global render_server_process
+    if render_server_process is not None:
         print('server already running')
         return
 
     args = [
         'node', 'launch.js',
-        '--port', vim.eval("g:bracey_server_port"),
+        '--port', vim.eval("g:render_server_port"),
     ]
 
-    if int(vim.eval("g:bracey_server_allow_remote_connections")) != 0:
+    if int(vim.eval("g:render_server_allow_remote_connections")) != 0:
         args.append('--allow-remote-web')
 
     print('starting server with args "' + str(args) + '"')
 
     log_to = subprocess.PIPE
 
-    log_path = vim.eval('g:bracey_server_log')
+    log_path = vim.eval('g:render_server_log')
     if log_path is not None:
         log_to = open(log_path, 'a')
 
     try:
-        bracey_server_process = subprocess.Popen(
+        render_server_process = subprocess.Popen(
             args,
             cwd=vim.eval("s:plugin_path") + '/server',
             stdout=subprocess.PIPE,
             stderr=log_to,
             stdin=subprocess.PIPE)
     except Exception as e:
-        print('could not start bracey server: ' + str(e))
+        print('could not start render server: ' + str(e))
 
 
 def stopServer():
-    global bracey_server_process
+    global render_server_process
 
-    if bracey_server_process is None:
+    if render_server_process is None:
         print('server not running')
         return
 
-    bracey_server_process.terminate()
-    bracey_server_process.wait()
-    bracey_server_process = None
+    render_server_process.terminate()
+    render_server_process.wait()
+    render_server_process = None

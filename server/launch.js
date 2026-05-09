@@ -69,7 +69,7 @@ console.log = function(msg) {
 	process.stderr.write(util.format(msg) + '\n');
 };
 
-console.log('starting bracey with arguments:');
+console.log('starting render with arguments:');
 
 for(arg in settings){
 	console.log(arg + ': ' + settings[arg]);
