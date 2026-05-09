@@ -1,146 +1,152 @@
-import fs from "fs";
-import path from "path";
+var htmlfile = require("./htmlfile.js");
+var cssfile = require("./cssfile.js");
+var fs = require("fs");
 
-import { transformHTML as parseHTML } from "./parser.js";
-import * as paths from "./pathutils.js";
+var FileManager = function(changePageCallback){
+	this.changePageCallback = changePageCallback || function(){
+		//console.log('page change will be ignored');
+	};
 
-const MIME_TYPES = {
-  ".html": "text/html",
-  ".css": "text/css",
-  ".js": "application/javascript",
-  ".json": "application/json",
-  ".png": "image/png",
-  ".jpg": "image/jpeg",
-  ".jpeg": "image/jpeg",
-  ".svg": "image/svg+xml",
-  ".gif": "image/gif",
-  ".ico": "image/x-icon",
-  ".txt": "text/plain",
+	this.files = {};
+
+	this.currentFile = undefined;
+	this.currentHtmlFile = undefined;
+	this.editorRoot = undefined;
+
+	var injectedCss = fs.readFileSync('frontend.css', "utf8");
+	//console.log('loaded injected css');
+
+	var injectedJs = fs.readFileSync('frontend.js', "utf8");
+	//console.log('loaded injected js');
+
+	htmlfile.setCSS(injectedCss);
+	htmlfile.setJS(injectedJs);
+
+	this.errorPage.injectedJs = injectedJs;
+}
+
+FileManager.prototype.newFile = function(id, name, path, type, source){
+	//console.log('created a new file with id: ' + id + ', name: ' + name
+			//+ ', path: ' + path + ', type: ' + type);
+
+	if(source == undefined){
+		source = '';
+	}
+
+	var createdFile = {};
+	switch(type){
+		case 'html':
+			createdFile = new htmlfile(source);
+			break;
+		case 'css':
+			createdFile = new cssfile(source);
+			break;
+		default:
+			//console.log('it\'s not a recognized filetype so we\'ll ignore this');
+			//TODO: for now...
+			return;
+			break;
+	}
+
+	createdFile.name = name;
+
+	var relativePath = null;
+	var normalizedRoot = this.editorRoot.replace(/\/$/, '');
+	if(path.startsWith(normalizedRoot)){
+		relativePath = path.substring(normalizedRoot.length);
+		if(relativePath[0] == '/'){
+			relativePath = relativePath.substr(1);
+		}
+	}else{
+		relativePath = name;
+	}
+
+	createdFile.path = {
+		system: path,
+		relative: relativePath
+	};
+
+	createdFile.type = type;
+
+	this.files[id] = createdFile;
+}
+
+FileManager.prototype.getById = function(id){
+	return this.files[id];
 };
 
-function exists(filePath) {
-  return fs.existsSync(filePath);
-}
-
-function read(filePath) {
-  return fs.readFileSync(filePath);
-}
-
-function readText(filePath) {
-  return fs.readFileSync(
-    filePath,
-    "utf8"
-  );
-}
-
-function getMimeType(filePath) {
-  const ext =
-    paths.ext(filePath);
-
-  return (
-    MIME_TYPES[ext] ||
-    "application/octet-stream"
-  );
-}
-
-function transformHTML(filePath) {
-  const html =
-    readText(filePath);
-
-  return parseHTML(html);
-}
-
-export function load(requestUrl, root = process.cwd()) {
-  let filePath =
-    paths.resolveRequest(
-      requestUrl,
-      root
-    );
-
-  filePath =
-    paths.normalize(filePath);
-
-  if (!paths.isSafe(filePath, root)) {
-    return forbidden();
-  }
-
-  if (!exists(filePath)) {
-    return notFound();
-  }
-
-  const ext =
-    paths.ext(filePath);
-
-  try {
-    // html pipeline
-    if (ext === ".html") {
-      return {
-        status: 200,
-        type: "text/html",
-        body: transformHTML(
-          filePath
-        ),
-      };
-    }
-
-    return {
-      status: 200,
-      type: getMimeType(
-        filePath
-      ),
-      body: read(filePath),
-    };
-
-  } catch (e) {
-    return error(e);
-  }
-}
-
-export function loadClientAsset(name) {
-  try {
-    const filePath =
-      paths.clientAsset(name);
-
-    if (!exists(filePath)) {
-      return notFound();
-    }
-
-    return {
-      status: 200,
-      type: "application/javascript",
-      body: read(filePath),
-    };
-
-  } catch (e) {
-    return error(e);
-  }
-}
-
-function notFound() {
-  return {
-    status: 404,
-    type: "text/plain",
-    body: "File not found",
-  };
-}
-
-function forbidden() {
-  return {
-    status: 403,
-    type: "text/plain",
-    body: "Forbidden",
-  };
-}
-
-export function error(err) {
-  return {
-    status: 500,
-    type: "text/plain",
-    body: err.toString(),
-  };
-}
-
-export const filemanager = {
-  load,
-  loadClientAsset,
+FileManager.prototype.getByPath = function(path){
+	throw 'not implemented';
 };
+
+FileManager.prototype.getByWebPath = function(path){
+	if(path[0] == '/'){
+		path = path.substr(1);
+	}
+
+	for(var file in this.files){
+		if(this.files[file].path.relative == path
+				|| this.files[file].name == path){
+			return this.files[file];
+		}
+	}
+
+	return null;
+};
+
+FileManager.prototypegetByName = function(name){
+	throw 'not implemented';
+};
+
+FileManager.prototype.getCurrentFile = function(){
+	if(this.currentFile !== undefined){
+		return this.files[this.currentFile];
+	}
+};
+
+FileManager.prototype.setCurrentFile = function(id){
+	if(!this.files[id]){
+		this.currentFile = undefined;
+		return;
+	}
+
+	this.currentFile = id;
+
+	if(this.files[id].type == 'html'){
+		this.currentHtmlFile = id;
+		this.changePageCallback(this.files[id]);
+	}
+};
+
+FileManager.prototype.getCurrentHtmlFile = function(){
+	if(this.currentHtmlFile !== undefined){
+		return this.files[this.currentHtmlFile];
+	}
+};
+
+FileManager.prototype.getEditorRoot = function(){
+	if(!this.editorRoot){
+		//console.log('requested editor root before it was defined');
+	}
+	return this.editorRoot;
+};
+
+FileManager.prototype.errorPage = {
+	webSrc: function(title, details){
+		if(!this.template_source){
+			this.template_source = fs.readFileSync(this.template_path, "utf8");
+			this.template_source = this.template_source.replace(
+					/%JAVASCRIPT%/g,
+					this.injectedJs);
+		}
+
+		return this.template_source
+			.replace(/%TITLE%/g, title)
+			.replace(/%DETAILS%/g, details);
+	},
+	template_source: undefined,
+	injectedJs: undefined,
+	template_path: 'error_template.html'
+};
+
+module.exports = FileManager;
