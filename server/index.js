@@ -14,6 +14,7 @@ for (let i = 0; i < args.length; i++) {
 	if (args[i] === "--port" && args[i + 1]) {
 		const port = parseInt(args[i + 1]);
 		if (!isNaN(port)) {
+			 PORT = port;
 			i++;
 		}
 	} else if (args[i] === "--root" && args[i + 1]) {

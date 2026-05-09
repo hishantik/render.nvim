@@ -44,6 +44,8 @@ function M.setup(opts)
 	rpc.setup(M.config)
 	preview.setup(M.config)
 
+	require("live.autocmds").setup()
+
 	create_commands()
 
 	if M.config.auto_start then
