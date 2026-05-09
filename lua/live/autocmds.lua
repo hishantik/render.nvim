@@ -60,14 +60,28 @@ end
 function M.setup()
   print("[live] setting up autocmds")
 
+  -- TextChanged/TextChangedI for debounced typing updates
   vim.api.nvim_create_autocmd({
     "TextChanged",
     "TextChangedI",
+  }, {
+    group = group,
+    callback = function(args)
+      vim.defer_fn(function()
+        local path = vim.api.nvim_buf_get_name(args.buf)
+        if path ~= "" then
+          send_buffer(args.buf)
+        end
+      end, 120)
+    end,
+  })
+
+  -- BufWritePost for immediate save updates
+  vim.api.nvim_create_autocmd({
     "BufWritePost",
   }, {
     group = group,
     callback = function(args)
-      print("[live] autocmd triggered for buf:", args.buf)
       send_buffer(args.buf)
     end,
   })
