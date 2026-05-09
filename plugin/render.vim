@@ -43,7 +43,7 @@ if !exists("g:render_browser_command")
 	let g:render_browser_command = 0
 endif
 
-command! -nargs=0 render call render#start()
-command! -nargs=0 renderStop  call render#stop()
-command! -nargs=0 renderReload call render#reload()
-command! -nargs=* renderEval call render#evalFile(<f-args>)
+command! -nargs=0 Render call render#start()
+command! -nargs=0 RenderStop  call render#stop()
+command! -nargs=0 RenderReload call render#reload()
+command! -nargs=* RenderEval call render#evalFile(<f-args>)
