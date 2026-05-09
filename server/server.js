@@ -233,8 +233,11 @@ Server.prototype.handleFileRequest = function(request, response){
 		response.end(file.webSrc());
 
 	}else{
-		//console.log('loading from ' + this.files.editorRoot + url);
-		fs.readFile(this.files.editorRoot + url, function(err, data){
+		// Normalize editorRoot to avoid double slashes
+		var editorRoot = this.files.editorRoot || '';
+		editorRoot = editorRoot.replace(/\/+$/, '');  // Remove trailing slashes
+		//console.log('loading from ' + editorRoot + '/' + url);
+		fs.readFile(editorRoot + '/' + url, function(err, data){
 			if(err){
 				response.writeHead(404);
 				response.end(self.files.errorPage.webSrc(

@@ -50,26 +50,42 @@ FileManager.prototype.newFile = function(id, name, path, type, source){
 
 	createdFile.name = name;
 
+	// Calculate relative path
 	var relativePath = null;
-	var normalizedRoot = this.editorRoot;
 
-	// Handle undefined or invalid editorRoot
-	if(!normalizedRoot || normalizedRoot === 'undefined'){
-		normalizedRoot = '';
+	if(this.editorRoot && this.editorRoot !== 'undefined'){
+		// Normalize editorRoot - remove trailing slashes
+		var normalizedRoot = this.editorRoot.replace(/\/+$/, '');
+
+		// Find common prefix between path and editorRoot
+		// Handle cases where editorRoot might be partial/relative path
+		var commonPrefix = '';
+		var rootParts = normalizedRoot.split('/');
+		var pathParts = path.split('/');
+
+		// Find common directory path
+		var commonLength = 0;
+		for(var i = 0; i < rootParts.length && i < pathParts.length; i++){
+			if(rootParts[i] === pathParts[i]){
+				commonLength++;
+			}else{
+				break;
+			}
+		}
+
+		if(commonLength > 0){
+			// Build common prefix from matching parts
+			commonPrefix = pathParts.slice(0, commonLength).join('/');
+			relativePath = path.substring(commonPrefix.length);
+			// Remove leading slash if present
+			if(relativePath.length > 0 && relativePath[0] === '/'){
+				relativePath = relativePath.substring(1);
+			}
+		}
 	}
 
-	// Normalize: ensure no trailing slash for comparison
-	normalizedRoot = normalizedRoot.replace(/\/+$/, '');
-
-	// Check if path starts with editorRoot (handle both /mnt and /mnt/ patterns)
-	if(normalizedRoot && path.startsWith(normalizedRoot)){
-		relativePath = path.substring(normalizedRoot.length);
-		// Remove leading slash if present
-		if(relativePath.length > 0 && relativePath[0] === '/'){
-			relativePath = relativePath.substring(1);
-		}
-	}else{
-		// Fallback: use the basename (last component of path)
+	// Fallback: use basename if no common prefix found
+	if(!relativePath || relativePath.length === 0){
 		var lastSlash = path.lastIndexOf('/');
 		relativePath = lastSlash >= 0 ? path.substring(lastSlash + 1) : path;
 	}
