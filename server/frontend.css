@@ -1,4 +1,4 @@
-@keyframes bracey-blink-background{
+@keyframes render-blink-background{
 	0% {
 		background: none;
 	}
@@ -10,7 +10,7 @@
 	}
 }
 
-.bracey-currently-selected-highlight{
+.render-currently-selected-highlight{
 	z-index: 2147483647 !important;
 	position: absolute !important;
 	-moz-box-sizing: border-box !important;
@@ -25,15 +25,15 @@
 	margin: 0 !important;
 	padding: 0 !important;
 
-	animation: bracey-blink-background 0.75s !important;
+	animation: render-blink-background 0.75s !important;
 }
 
-.bracey-highlight-error{
+.render-highlight-error{
 	border-color: rgba(239, 83, 80, 0.75) !important;
 	background: rgba(239, 83, 80, 0.25) !important;
 }
 
-.bracey-error-indicator{
+.render-error-indicator{
 	z-index: 2147483647 !important;
 	position: fixed !important;
 	top: 0 !important;
@@ -47,12 +47,12 @@
 	background: rgba(239, 83, 80, .75) !important;
 }
 
-.bracey-error-indicator:hover{
+.render-error-indicator:hover{
 	background: none !important;
 	border: none !important;
 }
 
-.bracey-error-indicator > div{
+.render-error-indicator > div{
 	display: none;
 	z-index: 2147483647 !important;
 	position: fixed !important;
@@ -67,6 +67,6 @@
 	color: #fff !important;
 }
 
-.bracey-error-indicator:hover > div{
+.render-error-indicator:hover > div{
 	display: block;
 }

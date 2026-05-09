@@ -36,7 +36,7 @@
 			case 'select':
 				if('index' in message){
 					setHighlighted(
-							'[meta-bracey-element-index=\"' +
+							'[meta-render-element-index=\"' +
 							message['index'] +
 							'\"]'
 							);
@@ -60,7 +60,7 @@
 						elem = document;
 					}else{
 						elem = document.querySelector(
-							'[meta-bracey-element-index=\"' +
+							'[meta-render-element-index=\"' +
 							changeGroup['element'] +
 							'\"]');
 					}
@@ -89,7 +89,7 @@
 
 		if(!errorIndicator){
 			errorIndicator = document.createElement('div');
-			errorIndicator.className = 'bracey-error-indicator';
+			errorIndicator.className = 'render-error-indicator';
 
 			document.body.appendChild(errorIndicator);
 		}
@@ -111,12 +111,12 @@
 	};
 
 	var selectorErrorState = function(state){
-		var existingSelectors = document.querySelectorAll('.bracey-currently-selected-highlight');
+		var existingSelectors = document.querySelectorAll('.render-currently-selected-highlight');
 		for(var i = 0; i < existingSelectors.length; i++){
 			if(state){
-				existingSelectors[i].classList.add('bracey-highlight-error');
+				existingSelectors[i].classList.add('render-highlight-error');
 			}else{
-				existingSelectors[i].classList.remove('bracey-highlight-error');
+				existingSelectors[i].classList.remove('render-highlight-error');
 			}
 		}
 	};
@@ -132,7 +132,7 @@
 					case 'attribs':
 						element = element.childNodes[change.index];
 						while(element.attributes.length > 1){
-							if(element.attributes[0].name != 'meta-bracey-element-index'){
+							if(element.attributes[0].name != 'meta-render-element-index'){
 								element.removeAttribute(element.attributes[0].name);
 							}else{
 								element.removeAttribute(element.attributes[1].name);
@@ -180,7 +180,7 @@
 	var lastSelection = '';
 
 	var removeHighlights = function(){
-		var existingSelectors = document.querySelectorAll('.bracey-currently-selected-highlight');
+		var existingSelectors = document.querySelectorAll('.render-currently-selected-highlight');
 		for(var i = 0, len = existingSelectors.length; i < len; i++){
 			existingSelectors[i].parentElement.removeChild(existingSelectors[i]);
 		}
@@ -210,11 +210,11 @@
 	};
 
 	var reHighlight = function(){
-		var existingSelectors = document.querySelectorAll('.bracey-currently-selected-highlight');
+		var existingSelectors = document.querySelectorAll('.render-currently-selected-highlight');
 		for(var i = 0; i < existingSelectors.length; i++){
 			var highlight = existingSelectors[i];
 			var toHighlight = document.querySelectorAll(
-					'[meta-bracey-element-index=\"' +
+					'[meta-render-element-index=\"' +
 					highlight.getAttribute('highlighting') +
 					'\"]')[0];
 			if(!toHighlight){
@@ -243,7 +243,7 @@
 		var toHighlight = document.querySelectorAll(selector);
 		for(var i = 0; i < toHighlight.length; i++){
 			var newHighlight = document.createElement('div');
-			newHighlight.className = 'bracey-currently-selected-highlight';
+			newHighlight.className = 'render-currently-selected-highlight';
 
 			var box = elementBox(toHighlight[i]);
 
@@ -252,7 +252,7 @@
 			newHighlight.style.width = box.width;
 			newHighlight.style.height = box.height;
 			newHighlight.style.position = window.getComputedStyle(toHighlight[i]).position;
-			newHighlight.setAttribute('highlighting', toHighlight[i].getAttribute('meta-bracey-element-index'));
+			newHighlight.setAttribute('highlighting', toHighlight[i].getAttribute('meta-render-element-index'));
 
 			document.body.appendChild(newHighlight);
 		};
@@ -295,7 +295,7 @@
 					elements[c].setAttribute("data-href", href);
 				}
 
-				elements[i].href = setUrlParam(href, 'bracey-cache-buster', (new Date).getTime());
+				elements[i].href = setUrlParam(href, 'render-cache-buster', (new Date).getTime());
 			}
 			c++;
 		}

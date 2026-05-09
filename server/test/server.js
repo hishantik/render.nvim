@@ -1,7 +1,7 @@
 var expect = require('chai').expect;
 var fs = require('fs');
 var http = require('http');
-var bracey = require('../server.js');
+var render = require('../server.js');
 var WebSocketClient = require('websocket').client;
 var port = 13378;
 
@@ -44,11 +44,11 @@ var editor = {
 
 describe('server', function(){
 	before(function(done){
-		//start bracey
-		server = new bracey(serverSettings);
+		//start render
+		server = new render(serverSettings);
 		server.start();
 
-		//connect to bracey from websocket (simulator web browser
+		//connect to render from websocket (simulator web browser
 		var client = new WebSocketClient();
 		client.connect('ws://localhost:' + port);
 
