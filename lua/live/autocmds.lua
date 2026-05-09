@@ -30,52 +30,49 @@ local function debounce(buf, fn, delay)
 end
 
 local function send_buffer(buf)
-	local path = vim.api.nvim_buf_get_name(buf)
+  local path = vim.api.nvim_buf_get_name(buf)
+  print("[live] send_buffer called, path:", path)
 
-	if path == "" then
-		return
-	end
+  if path == "" then
+    print("[live] empty path, skipping")
+    return
+  end
 
-	local ext = vim.fn.fnamemodify(path, ":e")
+  local ext = vim.fn.fnamemodify(path, ":e")
+  print("[live] extension:", ext)
 
-	if not allowed[ext] then
-		return
-	end
+  if not allowed[ext] then
+    print("[live] extension not in allowed list, skipping")
+    return
+  end
 
-	local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
+  local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
+  local content = table.concat(lines, "\n")
+  print("[live] sending content, length:", #content)
 
-	local content = table.concat(lines, "\n")
-
-	require("live.rpc").send({
-		type = ext,
-		path = path,
-		content = content,
-	})
+  require("live.rpc").send({
+    type = ext,
+    path = path,
+    content = content,
+  })
 end
 
 function M.setup()
-	vim.api.nvim_create_autocmd({
-		"TextChanged",
-		"TextChangedI",
-	}, {
-		group = group,
+  print("[live] setting up autocmds")
 
-		callback = function(args)
-			debounce(args.buf, function()
-				send_buffer(args.buf)
-			end, 120)
-		end,
-	})
+  vim.api.nvim_create_autocmd({
+    "TextChanged",
+    "TextChangedI",
+    "BufWritePost",
+  }, {
+    group = group,
+    callback = function(args)
+      print("[live] autocmd triggered for buf:", args.buf)
+      send_buffer(args.buf)
+    end,
+  })
 
-	vim.api.nvim_create_autocmd({
-		"BufWritePost",
-	}, {
-		group = group,
-
-		callback = function(args)
-			send_buffer(args.buf)
-		end,
-	})
+  print("[live] autocmds setup complete")
 end
 
 return M

@@ -12,10 +12,14 @@ function M.setup(config)
 end
 
 function M.send(data)
+  print("[live] rpc.send called with type:", data.type)
+  print("[live] sending to:", state_host .. ":" .. tostring(state_port) .. "/__live")
+
   if vim.fn.has("python3") == 1 then
     local json = vim.json.encode(data)
     local tmpfile = "/tmp/live_rpc_" .. vim.fn.getpid() .. ".json"
     vim.fn.writefile({json}, tmpfile)
+    print("[live] wrote json to:", tmpfile)
 
     -- Use a simpler approach: write Python to temp file and execute
     local pyfile = "/tmp/live_rpc_send_" .. vim.fn.getpid() .. ".py"
