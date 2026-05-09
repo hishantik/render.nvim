@@ -28,13 +28,9 @@ export function resolveRequest(reqUrl, root = process.cwd()) {
   );
 }
 
-export function isSafe(target) {
-  const normalized =
-    normalize(target);
-
-  return normalized.startsWith(
-    root()
-  );
+export function isSafe(target, root = process.cwd()) {
+  const normalized = normalize(target);
+  return normalized.startsWith(root);
 }
 
 export function ext(filePath) {

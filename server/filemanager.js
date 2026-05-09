@@ -60,9 +60,7 @@ export function load(requestUrl, root = process.cwd()) {
   filePath =
     paths.normalize(filePath);
 
-  if (
-    !paths.isSafe(filePath)
-  ) {
+  if (!paths.isSafe(filePath, root)) {
     return forbidden();
   }
 
