@@ -51,14 +51,27 @@ FileManager.prototype.newFile = function(id, name, path, type, source){
 	createdFile.name = name;
 
 	var relativePath = null;
-	var normalizedRoot = this.editorRoot.replace(/\/$/, '');
-	if(path.startsWith(normalizedRoot)){
+	var normalizedRoot = this.editorRoot;
+
+	// Handle undefined or invalid editorRoot
+	if(!normalizedRoot || normalizedRoot === 'undefined'){
+		normalizedRoot = '';
+	}
+
+	// Normalize: ensure no trailing slash for comparison
+	normalizedRoot = normalizedRoot.replace(/\/+$/, '');
+
+	// Check if path starts with editorRoot (handle both /mnt and /mnt/ patterns)
+	if(normalizedRoot && path.startsWith(normalizedRoot)){
 		relativePath = path.substring(normalizedRoot.length);
-		if(relativePath[0] == '/'){
-			relativePath = relativePath.substr(1);
+		// Remove leading slash if present
+		if(relativePath.length > 0 && relativePath[0] === '/'){
+			relativePath = relativePath.substring(1);
 		}
 	}else{
-		relativePath = name;
+		// Fallback: use the basename (last component of path)
+		var lastSlash = path.lastIndexOf('/');
+		relativePath = lastSlash >= 0 ? path.substring(lastSlash + 1) : path;
 	}
 
 	createdFile.path = {
