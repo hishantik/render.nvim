@@ -1,4 +1,5 @@
 import http from "http";
+import path from "path";
 
 import { debounce } from "./debounce.js";
 import { filemanager } from "./filemanager.js";
@@ -77,15 +78,23 @@ function serveClientAsset(
   const asset =
     path.basename(req.url);
 
-  const result =
-    filemanager.loadClientAsset(
-      asset
-    );
+  try {
+    const result =
+      filemanager.loadClientAsset(
+        asset
+      );
 
-  send(res, result.status, {
-    type: result.type,
-    body: result.body,
-  });
+    send(res, result.status, {
+      type: result.type,
+      body: result.body,
+    });
+  } catch (e) {
+    console.error("[serveClientAsset]", e);
+    send(res, 500, {
+      type: "text/plain",
+      body: e.toString(),
+    });
+  }
 }
 
 function handleEditorRequest(
