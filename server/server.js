@@ -16,7 +16,7 @@ function Server(settings){
 	var self = this;
 
 	this.files = new filemanager(function(file){
-		self.sendGoto(file.name)
+		self.sendFileGoto(file)
 	});
 }
 
@@ -274,6 +274,23 @@ Server.prototype.sendGoto = function(location){
 			'location': location
 		});
 		lastGoto = location;
+	}
+};
+
+Server.prototype.sendFileGoto = function(file){
+	if(!file || !file.path || !file.path.relative) return;
+	var relative = file.path.relative;
+	// Ensure we don't send absolute paths to the browser
+	// Only send the relative filename
+	var lastSlash = relative.lastIndexOf('/');
+	var filename = lastSlash >= 0 ? relative.substring(lastSlash + 1) : relative;
+
+	if(lastGoto != filename){
+		this.broadcast({
+			'command': 'goto',
+			'location': filename
+		});
+		lastGoto = filename;
 	}
 };
 
