@@ -6,6 +6,7 @@ var VERSION = "0.0.1";
 var websocket = require("websocket");
 var http = require("http");
 var fs = require("fs");
+var path = require("path");
 var mime = require("mime");
 var filemanager = require("./filemanager.js");
 
@@ -233,11 +234,8 @@ Server.prototype.handleFileRequest = function(request, response){
 		response.end(file.webSrc());
 
 	}else{
-		// Normalize editorRoot to avoid double slashes
-		var editorRoot = this.files.editorRoot || '';
-		editorRoot = editorRoot.replace(/\/+$/, '');  // Remove trailing slashes
-		//console.log('loading from ' + editorRoot + '/' + url);
-		fs.readFile(editorRoot + '/' + url, function(err, data){
+		var editorRoot = (this.files.editorRoot || '').replace(/\/+$/, '');
+		fs.readFile(path.join(editorRoot, url), function(err, data){
 			if(err){
 				response.writeHead(404);
 				response.end(self.files.errorPage.webSrc(
@@ -279,11 +277,7 @@ Server.prototype.sendGoto = function(location){
 
 Server.prototype.sendFileGoto = function(file){
 	if(!file || !file.path || !file.path.relative) return;
-	var relative = file.path.relative;
-	// Ensure we don't send absolute paths to the browser
-	// Only send the relative filename
-	var lastSlash = relative.lastIndexOf('/');
-	var filename = lastSlash >= 0 ? relative.substring(lastSlash + 1) : relative;
+	var filename = path.basename(file.path.relative);
 
 	if(lastGoto != filename){
 		this.broadcast({

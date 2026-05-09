@@ -1,6 +1,7 @@
 var htmlfile = require("./htmlfile.js");
 var cssfile = require("./cssfile.js");
 var fs = require("fs");
+var path = require("path");
 
 var FileManager = function(changePageCallback){
 	this.changePageCallback = changePageCallback || function(){
@@ -25,9 +26,9 @@ var FileManager = function(changePageCallback){
 	this.errorPage.injectedJs = injectedJs;
 }
 
-FileManager.prototype.newFile = function(id, name, path, type, source){
+FileManager.prototype.newFile = function(id, name, filePath, type, source){
 	//console.log('created a new file with id: ' + id + ', name: ' + name
-			//+ ', path: ' + path + ', type: ' + type);
+			//+ ', path: ' + filePath + ', type: ' + type);
 
 	if(source == undefined){
 		source = '';
@@ -50,48 +51,18 @@ FileManager.prototype.newFile = function(id, name, path, type, source){
 
 	createdFile.name = name;
 
-	// Calculate relative path
 	var relativePath = null;
 
 	if(this.editorRoot && this.editorRoot !== 'undefined'){
-		// Normalize editorRoot - remove trailing slashes
-		var normalizedRoot = this.editorRoot.replace(/\/+$/, '');
-
-		// Find common prefix between path and editorRoot
-		// Handle cases where editorRoot might be partial/relative path
-		var commonPrefix = '';
-		var rootParts = normalizedRoot.split('/');
-		var pathParts = path.split('/');
-
-		// Find common directory path
-		var commonLength = 0;
-		for(var i = 0; i < rootParts.length && i < pathParts.length; i++){
-			if(rootParts[i] === pathParts[i]){
-				commonLength++;
-			}else{
-				break;
-			}
-		}
-
-		if(commonLength > 0){
-			// Build common prefix from matching parts
-			commonPrefix = pathParts.slice(0, commonLength).join('/');
-			relativePath = path.substring(commonPrefix.length);
-			// Remove leading slash if present
-			if(relativePath.length > 0 && relativePath[0] === '/'){
-				relativePath = relativePath.substring(1);
-			}
-		}
+		relativePath = path.relative(this.editorRoot, filePath);
 	}
 
-	// Fallback: use basename if no common prefix found
 	if(!relativePath || relativePath.length === 0){
-		var lastSlash = path.lastIndexOf('/');
-		relativePath = lastSlash >= 0 ? path.substring(lastSlash + 1) : path;
+		relativePath = path.basename(filePath);
 	}
 
 	createdFile.path = {
-		system: path,
+		system: filePath,
 		relative: relativePath
 	};
 
