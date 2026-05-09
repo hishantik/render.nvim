@@ -1,8 +1,8 @@
-const fs = require("fs");
-const path = require("path");
+import fs from "fs";
+import path from "path";
 
-const parser = require("./parser");
-const paths = require("./pathutils");
+import { transformHTML as parseHTML } from "./parser.js";
+import * as paths from "./pathutils.js";
 
 const MIME_TYPES = {
   ".html": "text/html",
@@ -47,12 +47,10 @@ function transformHTML(filePath) {
   const html =
     readText(filePath);
 
-  return parser.transformHTML(
-    html
-  );
+  return parseHTML(html);
 }
 
-function load(requestUrl) {
+export function load(requestUrl) {
   let filePath =
     paths.resolveRequest(
       requestUrl
@@ -99,7 +97,7 @@ function load(requestUrl) {
   }
 }
 
-function loadClientAsset(name) {
+export function loadClientAsset(name) {
   try {
     const filePath =
       paths.clientAsset(name);
@@ -135,7 +133,7 @@ function forbidden() {
   };
 }
 
-function error(err) {
+export function error(err) {
   return {
     status: 500,
     type: "text/plain",
@@ -143,11 +141,7 @@ function error(err) {
   };
 }
 
-module.exports = {
+export const filemanager = {
   load,
   loadClientAsset,
-  exists,
-  read,
-  readText,
-  getMimeType,
 };

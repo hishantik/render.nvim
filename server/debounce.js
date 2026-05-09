@@ -1,4 +1,4 @@
-function debounce(fn, delay = 100) {
+export function debounce(fn, delay = 100) {
   let timer = null;
 
   return function(...args) {
@@ -9,5 +9,3 @@ function debounce(fn, delay = 100) {
     }, delay);
   };
 }
-
-module.exports = debounce;

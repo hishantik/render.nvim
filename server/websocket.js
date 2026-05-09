@@ -1,10 +1,10 @@
-const WebSocket = require("ws");
+import { WebSocketServer, WebSocket } from "ws";
 
-class LiveWebSocket {
+export class LiveWebSocket {
   constructor(server) {
     this.clients = new Set();
 
-    this.wss = new WebSocket.Server({
+    this.wss = new WebSocketServer({
       server,
     });
 
@@ -133,5 +133,3 @@ class LiveWebSocket {
     });
   }
 }
-
-module.exports = LiveWebSocket;

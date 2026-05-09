@@ -1,16 +1,20 @@
-const path = require("path");
+import path from "path";
+import { fileURLToPath } from "url";
 
-function root() {
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+export function root() {
   return process.cwd();
 }
 
-function normalize(target) {
+export function normalize(target) {
   return path.normalize(
     path.resolve(target)
   );
 }
 
-function resolveRequest(reqUrl) {
+export function resolveRequest(reqUrl) {
   if (reqUrl === "/") {
     return path.join(
       root(),
@@ -24,7 +28,7 @@ function resolveRequest(reqUrl) {
   );
 }
 
-function isSafe(target) {
+export function isSafe(target) {
   const normalized =
     normalize(target);
 
@@ -33,38 +37,18 @@ function isSafe(target) {
   );
 }
 
-function ext(filePath) {
+export function ext(filePath) {
   return path.extname(filePath);
 }
 
-function basename(filePath) {
+export function basename(filePath) {
   return path.basename(filePath);
 }
 
-function dirname(filePath) {
-  return path.dirname(filePath);
-}
-
-function join(...parts) {
-  return path.join(...parts);
-}
-
-function clientAsset(name) {
-  return join(
+export function clientAsset(name) {
+  return path.join(
     __dirname,
     "client",
     name
   );
 }
-
-module.exports = {
-  root,
-  normalize,
-  resolveRequest,
-  isSafe,
-  ext,
-  basename,
-  dirname,
-  join,
-  clientAsset,
-};

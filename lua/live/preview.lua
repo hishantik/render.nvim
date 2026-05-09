@@ -1,7 +1,5 @@
 local M = {}
 
-local uv = vim.uv
-
 local utils = require("live.utils")
 
 local autocmds = require("live.autocmds")

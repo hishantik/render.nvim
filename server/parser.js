@@ -1,10 +1,9 @@
-const fs = require("fs");
+import fs from "fs";
 
-function injectRuntime(html) {
+export function injectRuntime(html) {
   const runtimeTag =
     '<script type="module" src="/live/runtime.js"></script>';
 
-  // prevent duplicate injection
   if (
     html.includes("/live/runtime.js")
   ) {
@@ -21,7 +20,7 @@ function injectRuntime(html) {
   return html + runtimeTag;
 }
 
-function injectOverlay(html) {
+export function injectOverlay(html) {
   const overlayRoot =
     '<div id="__live_overlay_root"></div>';
 
@@ -41,30 +40,22 @@ function injectOverlay(html) {
   return html + overlayRoot;
 }
 
-function transformHTML(html) {
+export function transformHTML(html) {
   html = injectRuntime(html);
   html = injectOverlay(html);
 
   return html;
 }
 
-function loadHTML(file) {
+export function loadHTML(file) {
   return fs.readFileSync(
     file,
     "utf8"
   );
 }
 
-function parseFile(file) {
+export function parseFile(file) {
   const html = loadHTML(file);
 
   return transformHTML(html);
 }
-
-module.exports = {
-  injectRuntime,
-  injectOverlay,
-  transformHTML,
-  loadHTML,
-  parseFile,
-};

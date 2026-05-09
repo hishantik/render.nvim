@@ -1,9 +1,8 @@
-const http = require("http");
-const path = require("path");
+import http from "http";
 
-const filemanager = require("./filemanager");
-const LiveWebSocket = require("./websocket");
-const debounce = require("./debounce");
+import { debounce } from "./debounce.js";
+import { filemanager } from "./filemanager.js";
+import { LiveWebSocket } from "./websocket.js";
 
 const PORT = 8080;
 

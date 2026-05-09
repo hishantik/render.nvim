@@ -1,26 +1,20 @@
 local M = {}
 
 local preview = require("live.preview")
-
+local rpc = require("live.rpc")
 local websocket = require("live.websocket")
 
 M.config = {
 	port = 8080,
 	host = "127.0.0.1",
 
-	auto_start = true,
-	open_browser = true,
-
-	debounce = 150,
-
-	browser_command = nil,
-
-	logging = false,
+	auto_start = false,
 }
 
 local function create_commands()
 	vim.api.nvim_create_user_command("LiveStart", function()
 		preview.start()
+		preview.open()
 	end, {})
 
 	vim.api.nvim_create_user_command("LiveStop", function()
@@ -47,6 +41,7 @@ end
 function M.setup(opts)
 	M.config = vim.tbl_deep_extend("force", M.config, opts or {})
 
+	rpc.setup(M.config)
 	preview.setup(M.config)
 
 	create_commands()
