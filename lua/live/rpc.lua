@@ -7,16 +7,31 @@ end
 
 function M.send(data)
 	local url = ("http://%s:%d/__live"):format(M.host, M.port)
+	local json = vim.json.encode(data)
 
 	local ok, err = pcall(function()
-		vim.http.request({
-			url = url,
-			method = "POST",
-			headers = {
-				["Content-Type"] = "application/json",
-			},
-			body = vim.json.encode(data),
-		})
+		if vim.http then
+			vim.http.request({
+				url = url,
+				method = "POST",
+				headers = {
+					["Content-Type"] = "application/json",
+				},
+				body = json,
+			})
+		else
+			vim.system({
+				"curl",
+				"-s",
+				"-X",
+				"POST",
+				"-H",
+				"Content-Type: application/json",
+				"-d",
+				json,
+				url,
+			})
+		end
 	end)
 
 	if not ok then
