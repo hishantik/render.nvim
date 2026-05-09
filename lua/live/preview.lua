@@ -38,20 +38,15 @@ function M.start()
     state.script_path = plugin_path .. "/server/index.js"
   end
 
-  -- Start server using vim.system (detached)
-  local cmd = {"node", state.script_path, "--root", state.root, "--port", tostring(state.port)}
-  print("[live] starting server:", vim.fn.join(cmd, " "))
+  -- Start server using nohup via shell to ensure it persists
+  local cmd_str = "nohup node " .. state.script_path .. " --root " .. state.root .. " --port " .. tostring(state.port) .. " > /tmp/live_server.log 2>&1 &"
+  vim.fn.system(cmd_str)
 
-  state.server_job = vim.system(cmd, {detach = true}, function(obj)
-    if obj.code ~= 0 and obj.code ~= -1 then
-      vim.schedule(function()
-        vim.notify("[live] server error: " .. (obj.stderr or "unknown"), vim.log.levels.ERROR)
-      end)
-    end
-  end)
-
-  state.running = true
-  utils.notify("live preview started at " .. server_url())
+  -- Small delay to let server start
+  vim.defer_fn(function()
+    state.running = true
+    utils.notify("live preview started at " .. server_url())
+  end, 500)
 end
 
 function M.stop()
@@ -59,13 +54,12 @@ function M.stop()
     return
   end
 
-  if state.server_job then
-    pcall(function()
-      state.server_job:kill(15)  -- SIGTERM
-    end)
-    state.server_job = nil
-  end
+  -- Kill any node processes running the server
+  pcall(function()
+    vim.fn.system("pkill -f 'node.*render\\.nvim' 2>/dev/null; true")
+  end)
 
+  state.server_job = nil
   state.running = false
   utils.notify("live preview stopped")
 end
@@ -94,7 +88,7 @@ function M.open()
     return
   end
 
-  vim.fn.system({ opener, url })
+  vim.fn.system("nohup " .. opener .. " '" .. url .. "' > /dev/null 2>&1 &")
   utils.notify("opened browser")
 end
 
