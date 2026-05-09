@@ -5,9 +5,23 @@ import { debounce } from "./debounce.js";
 import { filemanager } from "./filemanager.js";
 import { LiveWebSocket } from "./websocket.js";
 
-const PORT = 8080;
+let PORT = 8080;
+let ROOT = process.cwd();
 
-const server = http.createServer(handleRequest);
+// Parse command line args
+const args = process.argv.slice(2);
+for (let i = 0; i < args.length; i++) {
+	if (args[i] === "--port" && args[i + 1]) {
+		if (!isNaN(parseInt(args[i + 1]))) {
+			i++;
+		}
+	} else if (args[i] === "--root" && args[i + 1]) {
+		ROOT = args[i + 1];
+		i++;
+	}
+}
+
+const server = http.createServer((req, res) => handleRequest(req, res, ROOT));
 
 const live = new LiveWebSocket(server);
 
@@ -25,7 +39,7 @@ const broadcastCSS = debounce(
   80
 );
 
-function handleRequest(req, res) {
+function handleRequest(req, res, root) {
   try {
     // editor bridge
     if (
@@ -49,7 +63,7 @@ function handleRequest(req, res) {
     }
 
     // static files
-    return serveFile(req, res);
+    return serveFile(req, res, root);
 
   } catch (e) {
     console.error(e);
@@ -61,9 +75,9 @@ function handleRequest(req, res) {
   }
 }
 
-function serveFile(req, res) {
+function serveFile(req, res, root) {
   const result =
-    filemanager.load(req.url);
+    filemanager.load(req.url, root);
 
   send(res, result.status, {
     type: result.type,

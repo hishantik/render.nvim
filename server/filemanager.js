@@ -50,10 +50,11 @@ function transformHTML(filePath) {
   return parseHTML(html);
 }
 
-export function load(requestUrl) {
+export function load(requestUrl, root = process.cwd()) {
   let filePath =
     paths.resolveRequest(
-      requestUrl
+      requestUrl,
+      root
     );
 
   filePath =

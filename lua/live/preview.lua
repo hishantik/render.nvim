@@ -11,6 +11,7 @@ local state = {
 	running = false,
 	port = 8080,
 	host = "127.0.0.1",
+	root = nil,
 }
 
 local function server_url()
@@ -28,11 +29,15 @@ function M.start()
 		return
 	end
 
+	state.root = vim.fn.getcwd()
+
 	local server = vim.fn.stdpath("data") .. "/lazy/render.nvim/server/index.js"
 
 	local cmd = {
 		"node",
 		server,
+		"--root",
+		state.root,
 	}
 
 	state.job = vim.system(cmd, {

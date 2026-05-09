@@ -14,16 +14,16 @@ export function normalize(target) {
   );
 }
 
-export function resolveRequest(reqUrl) {
+export function resolveRequest(reqUrl, root = process.cwd()) {
   if (reqUrl === "/") {
     return path.join(
-      root(),
+      root,
       "index.html"
     );
   }
 
   return path.join(
-    root(),
+    root,
     reqUrl
   );
 }
