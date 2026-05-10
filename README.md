@@ -60,10 +60,22 @@ A live preview plugin for Neovim that enables real-time editing of HTML, CSS, an
 Plug 'hishantik/render.nvim'
 ```
 
+After installation, install dependencies:
+```bash
+cd ~/.local/share/nvim/site/pack/render/start/render.nvim
+npm install --prefix server
+```
+
 ### Using packer.nvim
 
 ```lua
 use 'hishantik/render.nvim'
+```
+
+After installation, install dependencies:
+```bash
+cd ~/.local/share/nvim/site/pack/packer/start/render.nvim
+npm install --prefix server
 ```
 
 ### Using lazy.nvim
@@ -72,8 +84,15 @@ use 'hishantik/render.nvim'
 {
   'hishantik/render.nvim',
   ft = { 'html', 'css', 'javascript', 'typescript', 'tsx' },
+  build = function()
+    -- Install Node.js dependencies on plugin installation/update
+    local plugin_dir = vim.fn.stdpath('data') .. '/lazy/render.nvim'
+    vim.fn.system('npm install --prefix ' .. plugin_dir .. '/server')
+  end,
 }
 ```
+
+> **Note:** The `npm install --prefix server` command installs Node.js dependencies in the plugin's `server/` directory. Adjust paths based on your plugin manager's installation directory.
 
 ### Manual Installation
 
