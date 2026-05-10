@@ -186,32 +186,20 @@ endfunction
 
 function! render#config()
 	let l:plugin_root = fnamemodify(expand('<sfile>:p:h:h'), ':p:h')
-	let l:example_file = l:plugin_root . '/render.vim.example'
-	execute 'edit ' . fnameescape(l:example_file)
+	let l:global_config = l:plugin_root . '/render.vim'
+	execute 'edit ' . fnameescape(l:global_config)
 endfunction
 
 function! render#init()
 	let l:plugin_root = fnamemodify(expand('<sfile>:p:h:h'), ':p:h')
 	let l:example_file = l:plugin_root . '/render.vim.example'
-	let l:config_path = has('nvim') ? stdpath('config') : split(&runtimepath, ',')[0]
+	let l:global_config = l:plugin_root . '/render.vim'
 
-	" Try common config locations
-	let l:locations = [
-		\ expand('~/.config/nvim/'),
-		\ expand('~/.vim/'),
-		\ l:config_path
-	\]
-
-	for l:dir in l:locations
-		if isdirectory(l:dir) && filewritable(l:dir) == 2
-			let l:dest = l:dir . 'render.vim.example'
-			call writefile(readfile(l:example_file, 'b'), l:dest, 'b')
-			echom 'Example config copied to: ' . l:dest
-			echom 'Copy contents to your init.vim or source this file.'
-			return
-		endif
-	endfor
-
-	echom 'Could not find writable config directory.'
-	echom 'Example file location: ' . l:example_file
+	if filereadable(l:example_file)
+		call writefile(readfile(l:example_file, 'b'), l:global_config, 'b')
+		echom 'Global config initialized at: ' . l:global_config
+		echom 'Use :RenderConfig to edit it.'
+	else
+		echom 'Example file not found in plugin directory.'
+	endif
 endfunction
