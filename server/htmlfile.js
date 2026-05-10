@@ -3,6 +3,9 @@ var util = require('util');
 var HTMLHintClass  = require("htmlhint").HTMLHint;
 var htmlhint = new HTMLHintClass;
 
+// Default rules, can be customized via HtmlFile.setRules()
+var defaultHtmlRules = { 'tag-pair': true, 'spec-char-escape': true };
+
 HtmlFile.setCSS = function(source){
 	HtmlFile.injectedCSS = source;
 }
@@ -10,6 +13,10 @@ HtmlFile.setCSS = function(source){
 HtmlFile.setJS = function(source){
 	HtmlFile.injectedJS = source;
 }
+
+HtmlFile.setRules = function(rules) {
+	defaultHtmlRules = rules;
+};
 
 function newElemIndex(){
 	return this.currentElemIndex++;
@@ -115,7 +122,7 @@ HtmlFile.prototype.setContent = function(newHtml, callback){
 	//before even begining, check to make sure there are no errors
 	var errors;
 	try{
-		errors = htmlhint.verify(newHtml, { 'tag-pair': true, 'spec-char-escape': true });
+		errors = htmlhint.verify(newHtml, defaultHtmlRules);
 	}catch(e){
 		callback(e, null);
 		return;

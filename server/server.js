@@ -5,6 +5,8 @@ var fs = require("fs");
 var path = require("path");
 var mime = require("mime");
 var filemanager = require("./filemanager.js");
+var htmlfile = require("./htmlfile.js");
+var cssfile = require("./cssfile.js");
 
 function Server(settings) {
 	this.settings = settings;
@@ -102,6 +104,22 @@ Server.prototype.handleEditorCommand = function(command, data) {
 				selector = currentFile.selectorFromPosition(currentFile.cursorX, currentFile.cursorY);
 			}
 			if (selector != null) this.sendSelect(selector);
+			break;
+		case 'c':
+			// Configure validation rules: c:type:json_data
+			// type: 'html' or 'css'
+			// json_data: JSON encoded configuration
+			var configType = data[0];
+			var config = JSON.parse(data[1] || '{}');
+			if (configType === 'html') {
+				htmlfile.setRules(config.rules || {});
+			} else if (configType === 'css') {
+				if (config.rules) cssfile.setRules(config.rules);
+				if (config.customValidators) {
+					cssfile.clearValidators();
+					config.customValidators.forEach(fn => cssfile.addValidator(fn));
+				}
+			}
 			break;
 	}
 };

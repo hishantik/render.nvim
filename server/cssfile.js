@@ -1,6 +1,10 @@
 var csslint = require('csslint').CSSLint;
 var cssparser = require('postcss');
 
+// Default CSSLint rules (empty = all enabled, or specify rules to ignore)
+var defaultCsslintRules = [];
+var customValidators = [];
+
 function CssFile(source, path, callback) {
 	this.path = path;
 	this.setContent(source, callback || (() => {}));
@@ -25,7 +29,24 @@ CssFile.prototype.selectorFromPosition = function(line, column) {
 };
 
 CssFile.prototype.setContent = function(source, callback) {
-	var errors = csslint.verify(source).messages.filter(m => m.type === 'error');
+	var errors = [];
+
+	// Run CSSLint with configured rules
+	var csslintResult = csslint.verify(source, { 'rules': defaultCsslintRules });
+	errors = csslintResult.messages.filter(m => m.type === 'error');
+
+	// Run custom validators
+	for (const validator of customValidators) {
+		try {
+			var customErrors = validator(source);
+			if (customErrors && customErrors.length > 0) {
+				errors = errors.concat(customErrors);
+			}
+		} catch (e) {
+			// Skip invalid validators
+		}
+	}
+
 	if (errors.length > 0) { callback(errors); return; }
 
 	var changed = this.source !== undefined && this.source !== source;
@@ -48,3 +69,18 @@ CssFile.prototype.setContent = function(source, callback) {
 }
 
 module.exports = CssFile;
+
+// Export functions to configure CSS validation
+module.exports.setRules = function(rules) {
+	defaultCsslintRules = rules;
+};
+
+module.exports.addValidator = function(validatorFn) {
+	if (typeof validatorFn === 'function') {
+		customValidators.push(validatorFn);
+	}
+};
+
+module.exports.clearValidators = function() {
+	customValidators = [];
+};

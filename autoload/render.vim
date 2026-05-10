@@ -24,6 +24,8 @@ function! render#start()
 	sleep 1000m
 	call render#setVars()
 	call render#setFile()
+	call render#configure('html', {})
+	call render#configure('css', {})
 
 	if g:render_auto_start_browser
 		call render#startBrowser(g:render_server_path.':'.g:render_server_port)
@@ -130,4 +132,12 @@ function! render#sendCommand(msg)
 	elseif has('python')
 		python send(vim.eval("a:msg"))
 	endif
+endfunction
+
+function! render#configure(type, config)
+	let json_config = json_encode({
+		\ 'rules': type == 'html' ? g:render_html_rules : g:render_csslint_rules,
+		\ 'customValidators': type == 'css' ? [] : []
+	\})
+	call render#sendCommand('c:'.len(a:type).':'.a:type.':'.len(json_config).':'.json_config)
 endfunction

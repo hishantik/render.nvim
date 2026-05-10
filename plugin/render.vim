@@ -43,7 +43,16 @@ if !exists("g:render_browser_command")
 	let g:render_browser_command = 0
 endif
 
+if !exists("g:render_html_rules")
+	let g:render_html_rules = {}
+endif
+
+if !exists("g:render_csslint_rules")
+	let g:render_csslint_rules = []
+endif
+
 command! -nargs=0 Render call render#start()
 command! -nargs=0 RenderStop  call render#stop()
 command! -nargs=0 RenderReload call render#reload()
 command! -nargs=* RenderEval call render#evalFile(<f-args>)
+command! -nargs=+ RenderConfigure call render#configure(<f-args>)
