@@ -22,12 +22,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/turbio/render.vim.git"
+    "url": "git+https://github.com/hishantik/render.nvim.git"
   },
-  "author": "mason clayton",
+  "author": "hishantik",
   "license": "GPL-2.0",
   "bugs": {
-    "url": "https://github.com/turbio/render.vim/issues"
+    "url": "https://github.com/hishantik/render.nvim/issues"
   },
-  "homepage": "https://github.com/turbio/render.vim#readme"
+  "homepage": "https://github.com/hishantik/render.nvim#readme"
 }

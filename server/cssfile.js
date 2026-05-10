@@ -1,76 +1,50 @@
 var csslint = require('csslint').CSSLint;
 var cssparser = require('postcss');
 
-function CssFile(source, path, callback){
-	callback = callback || function(){}
+function CssFile(source, path, callback) {
 	this.path = path;
-	this.setContent(source, callback);
+	this.setContent(source, callback || (() => {}));
 }
 
-CssFile.prototype.webSrc = function(){
+CssFile.prototype.webSrc = function() {
 	return this.source;
 };
 
-CssFile.prototype.selectorFromPosition = function(line, column){
-	for (const rule of this.parsed.nodes) {
-		const {
-			start: { line: startLine, column: startColumn },
-			end: { line: endLine, column: endColumn },
-		} = rule.source
-		if((startLine < line && endLine > line)
-			|| (startLine == line
-				&& endLine != line
-				&& startColumn <= line)
-			|| (startLine != line
-				&& endLine == line
-				&& startColumn >= line)
-			|| (startLine == line
-				&& endLine == line
-				&& startColumn <= line
-				&& endColumn >= line)){
-			return rule.selector || null;
+CssFile.prototype.selectorFromPosition = function(line, column) {
+	for (const { selector, source } of this.parsed.nodes) {
+		const { line: sl, column: sc } = source.start;
+		const { line: el, column: ec } = source.end;
+		if ((sl < line && el > line) ||
+			(sl === line && el !== line && sc <= column) ||
+			(sl !== line && el === line && ec >= column) ||
+			(sl === line && el === line && sc <= column && ec >= column)) {
+			return selector;
 		}
 	}
 	return null;
 };
 
-CssFile.prototype.setContent = function(source, callback){
-	var messages = csslint.verify(source).messages;
-	var errors = [];
-	messages.forEach(function(msg){
-		if(msg.type == 'error'){
-			errors.push(msg);
-		}
-	});
+CssFile.prototype.setContent = function(source, callback) {
+	var errors = csslint.verify(source).messages.filter(m => m.type === 'error');
+	if (errors.length > 0) { callback(errors); return; }
 
-	if(errors.length > 0 && callback){
-		callback(errors);
-		return;
-	}
-
-	var changed = (this.source != undefined && this.source != source);
-
+	var changed = this.source !== undefined && this.source !== source;
 	this.source = source;
 
-	try{
+	try {
 		this.parsed = cssparser.parse(source);
-	}catch(err){
+	} catch (err) {
 		callback(err);
 		return;
 	}
 
 	for (const rule of this.parsed.nodes) {
-		let source = rule.source;
-		source.start.line--;
-		source.start.column--;
-		source.end.column++;
+		rule.source.start.line--;
+		rule.source.start.column--;
+		rule.source.end.column++;
 	}
 
-	if(changed){
-		callback(null);
-	}else{
-		callback(null, null);
-	}
-};
+	callback(null, changed ? null : null);
+}
 
 module.exports = CssFile;
