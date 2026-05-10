@@ -267,6 +267,17 @@ Manual Setup:
     npm install
 <
 
+Termux (Android):
+  1. Install required packages:
+>
+    pkg install neovim nodejs termux-open
+<
+  2. Clone repository and install dependencies as above
+  3. Enable remote connections for mobile preview:
+>
+    let g:render_server_allow_remote_connections = 1
+<
+
 Usage:
   1. Open an HTML file in Neovim
   2. Run |:Render| to start the server and browser
