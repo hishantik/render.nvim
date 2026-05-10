@@ -178,7 +178,7 @@ function! s:get_local_ip() abort
 		if v:shell_error == 0 && !empty(l:output)
 			let l:ips = split(l:output)
 			for l:ip in l:ips
-				if l:ip =~ '^\d\+\.\d\+\.\d\+\.\d\+$' && l:ip !=# '127.0.0.1'
+				if l:ip =~ '^\d\+\.\d\+\.\d\+\.\d\+$' && l:ip !=# '127.0.0.1' && l:ip !=# '0.0.0.0'
 					return l:ip
 				endif
 			endfor
@@ -188,7 +188,7 @@ function! s:get_local_ip() abort
 		let l:lines = readfile('/proc/net/fib_trie')
 		for l:line in l:lines
 			let l:match = matchlist(l:line, '\(\d\+\.\d\+\.\d\+\.\d\+\)')
-			if !empty(l:match) && l:match[1] !=# '127.0.0.1'
+			if !empty(l:match) && l:match[1] !=# '127.0.0.1' && l:match[1] !=# '0.0.0.0'
 				return l:match[1]
 			endif
 		endfor
