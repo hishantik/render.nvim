@@ -74,6 +74,19 @@ Client Layer (Injected)
   - With arguments: evaluates the provided JavaScript string
   - Without arguments: evaluates the entire current buffer
 
+:RenderMobile                                                 *:RenderMobile*
+  Opens a QR code page in the default browser for mobile preview.
+  Useful for testing responsive designs on mobile devices.
+  Requires g:render_server_allow_remote_connections = 1
+
+:RenderConfigure {type} {rules}                           *:RenderConfigure*
+  Configures validation rules for HTML or CSS.
+  - type: 'html' or 'css'
+  - rules: JSON object (html) or array (css)
+
+:RenderConfig                                                   *:RenderConfig*
+  Opens your init.vim or init.lua file for editing render settings.
+
 =============================================================================
 4. Options                                                     *render-options*
 
@@ -114,12 +127,30 @@ g:render_auto_start_server                         *g:render_auto_start_server*
   Whether to start the Node.js server when |:Render| is executed.
 
 g:render_server_allow_remote_connections
+                                              *g:render_server_allow_remote_connections*
 
   Type: |Number|
   Default: `0`
 
   Whether to allow other machines to connect to the server. Useful for
-  testing on multiple platforms simultaneously.
+  testing on multiple platforms simultaneously. When enabled, the server
+  binds to 0.0.0.0 and :RenderMobile will show LAN IP in QR code.
+
+g:render_html_rules                                         *g:render_html_rules*
+
+  Type: |Dictionary|
+  Default: `{}`
+
+  Custom HTML validation rules for HTMLHint.
+  Example: {'tag-pair': v:true, 'attr-lowercase': v:true}
+
+g:render_csslint_rules                                     *g:render_csslint_rules*
+
+  Type: |List|
+  Default: `[]`
+
+  Custom CSSLint rules. Empty list enables all rules.
+  Example: ['compatible-vendor-prefixes', 'box-model']
 
 g:render_server_port                                     *g:render_server_port*
 
