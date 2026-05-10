@@ -78,6 +78,8 @@ Server.prototype.handleEditorCommand = function(command, data) {
 					this.setError(err);
 					if (!err) this.broadcast({ command: 'reload_css' });
 				});
+			} else if (currentFile.type === 'javascript') {
+				this.broadcast({ command: 'eval', js: data[0] });
 			}
 			break;
 		case 'e': this.broadcast({ command: 'eval', js: data[0] }); break;

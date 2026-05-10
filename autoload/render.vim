@@ -61,11 +61,11 @@ function! render#stopServer()
 endfunction
 
 function! render#setupHandlers()
-	autocmd CursorMoved,CursorMovedI *.html,*.css call render#setCursor()
-	autocmd TextChanged,TextChangedI *.html,*.css call render#bufferChange()
+	autocmd CursorMoved,CursorMovedI *.html,*.css,*.ts,*.tsx call render#setCursor()
+	autocmd TextChanged,TextChangedI *.html,*.css,*.ts,*.tsx call render#bufferChange()
 	autocmd BufEnter * call render#setFile()
 	if g:render_eval_on_save
-		autocmd BufWritePost *.js call render#evalFile()
+		autocmd BufWritePost *.js,*.ts,*.tsx call render#evalFile()
 	endif
 	if g:render_refresh_on_save
 		autocmd BufWritePost *.html call render#reload()

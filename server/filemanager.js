@@ -25,6 +25,10 @@ FileManager.prototype.newFile = function(id, name, filePath, type, source) {
 	switch (type) {
 		case 'html': createdFile = new htmlfile(source); break;
 		case 'css': createdFile = new cssfile(source); break;
+		case 'javascript':
+		case 'typescript':
+			createdFile = { source: source, type: type };
+			break;
 		default: return;
 	}
 
