@@ -72,9 +72,6 @@ use 'hishantik/render.nvim'
 {
   'hishantik/render.nvim',
   ft = { 'html', 'css', 'javascript', 'typescript', 'tsx' },
-  init = function()
-    -- Optional configuration here
-  end
 }
 ```
 
@@ -101,6 +98,7 @@ npm install
 | `:RenderEval {code}` | Execute JavaScript in browser |
 | `:RenderMobile` | Open QR code page for mobile preview |
 | `:RenderConfigure {type} {rules}` | Configure validation rules |
+| `:RenderConfig` | Open config file (init.vim/init.lua) |
 
 ### Getting Started
 
@@ -119,7 +117,6 @@ npm install
 :Render
 
 " Make changes - they appear instantly in the browser
-" Edit CSS, HTML, or JS and see real-time updates
 
 " Stop when finished
 :RenderStop
@@ -133,8 +130,6 @@ TypeScript (.ts) and TSX (.tsx) files are automatically supported:
 2. Run `:Render` as usual
 3. JavaScript changes are reflected in real-time
 
-Note: Save JS files (`:w`) to evaluate them in the browser when `g:render_eval_on_save = 1`.
-
 ## Using Mobile Preview
 
 Test your designs on mobile devices connected to the same network.
@@ -142,8 +137,13 @@ Test your designs on mobile devices connected to the same network.
 ### Setup for Local Network Access
 
 ```vim
-" Enable remote connections (binds to 0.0.0.0)
+" In init.vim (Vim)
 let g:render_server_allow_remote_connections = 1
+```
+
+```lua
+-- In init.lua (Neovim)
+vim.g.render_server_allow_remote_connections = 1
 ```
 
 ### Generate QR Code
@@ -158,10 +158,6 @@ let g:render_server_allow_remote_connections = 1
 
 The QR code will automatically use your LAN IP (e.g., `http://192.168.1.100:13378/qr`) when remote connections are enabled. Scan with your phone to preview.
 
-### Without Remote Connections
-
-If `g:render_server_allow_remote_connections = 0` (default), the QR code will use `127.0.0.1` which works only on the same machine.
-
 ## Custom Error Handlers
 
 Configure validation rules for HTML and CSS to match your project's standards.
@@ -169,33 +165,37 @@ Configure validation rules for HTML and CSS to match your project's standards.
 ### Configure HTML Rules
 
 ```vim
-" Disable specific HTMLHint rules
+" In init.vim
 let g:render_html_rules = {
     \ 'tag-pair': v:true,
     \ 'attr-lowercase': v:true,
-    \ 'doctype-first': v:false,
-    \ 'spec-char-escape': v:true
+    \ 'doctype-first': v:false
 \}
 
 " Or use RenderConfigure command
 :RenderConfigure html {'tag-pair': v:true, 'doctype-first': v:false}
 ```
 
+```lua
+-- In init.lua
+vim.g.render_html_rules = {
+    ['tag-pair'] = true,
+    ['attr-lowercase'] = true,
+    ['doctype-first'] = false
+}
+```
+
 ### Configure CSS Rules
 
 ```vim
-" Enable specific CSSLint rules (empty = all enabled)
+" Enable specific CSSLint rules
 let g:render_csslint_rules = ['compatible-vendor-prefixes', 'box-model']
-
-" Or use RenderConfigure command
-:RenderConfigure css ['compatible-vendor-prefixes']
 ```
 
-### How It Works
-
-- HTML validation uses [HTMLHint](https://htmlhint.com/)
-- CSS validation uses [CSSLint](https://github.com/CSSLint/csslint)
-- Rules are sent to the server and applied to new file changes
+```lua
+-- In init.lua
+vim.g.render_csslint_rules = { 'compatible-vendor-prefixes', 'box-model' }
+```
 
 ## WebSocket Reconnection
 
@@ -204,8 +204,6 @@ The plugin automatically handles connection drops with exponential backoff recon
 1. Connection lost → Status indicator shows "reconnecting..."
 2. Exponential backoff: 1s, 2s, 4s, 8s... up to 30s max
 3. Connection restored → Status indicator disappears
-
-No manual intervention needed - just keep editing!
 
 ## Configuration
 
@@ -225,7 +223,15 @@ No manual intervention needed - just keep editing!
 | `g:render_csslint_rules` | `[]` | Custom CSSLint rules |
 | `g:render_server_allow_remote_connections` | `0` | Allow mobile/network access |
 
-### Complete Configuration Example
+### Quick Configuration
+
+Use `:RenderConfig` to open your config file quickly:
+
+```vim
+:RenderConfig
+```
+
+### Complete Configuration Example (Vim)
 
 ```vim
 " Use Chrome instead of default browser
@@ -246,12 +252,29 @@ let g:render_server_port = 8080
 " Custom HTML validation rules
 let g:render_html_rules = {
     \ 'tag-pair': v:true,
-    \ 'attr-lowercase': v:true,
     \ 'doctype-first': v:false
 \}
 
 " Custom CSSLint rules
 let g:render_csslint_rules = ['compatible-vendor-prefixes']
+```
+
+### Complete Configuration Example (Neovim/Lua)
+
+```lua
+-- In init.lua
+vim.g.render_browser_command = 'google-chrome'
+vim.g.render_auto_start_browser = 0
+vim.g.render_refresh_on_save = 1
+vim.g.render_server_allow_remote_connections = 1
+vim.g.render_server_port = 8080
+
+vim.g.render_html_rules = {
+    ['tag-pair'] = true,
+    ['doctype-first'] = false
+}
+
+vim.g.render_csslint_rules = { 'compatible-vendor-prefixes' }
 ```
 
 ## How It Works
