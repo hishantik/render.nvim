@@ -4,7 +4,7 @@ if !has('python') && !has('python3')
 	finish
 endif
 
-let s:plugin_path = expand('<sfile>:p:h:h')
+let s:plugin_path = fnamemodify(expand('<sfile>:p:h:h'), ':p:h')
 let s:script_path = s:plugin_path.'/script/render.py'
 
 function! render#start()
@@ -185,14 +185,14 @@ function! s:get_local_ip() abort
 endfunction
 
 function! render#config()
-	let l:plugin_path = expand('<sfile>:p:h:h')
-	let l:example_file = l:plugin_path . '/render.vim.example'
+	let l:plugin_root = fnamemodify(expand('<sfile>:p:h:h'), ':p:h')
+	let l:example_file = l:plugin_root . '/render.vim.example'
 	execute 'edit ' . fnameescape(l:example_file)
 endfunction
 
 function! render#init()
-	let l:plugin_path = expand('<sfile>:p:h:h')
-	let l:example_file = l:plugin_path . '/render.vim.example'
+	let l:plugin_root = fnamemodify(expand('<sfile>:p:h:h'), ':p:h')
+	let l:example_file = l:plugin_root . '/render.vim.example'
 	let l:config_path = has('nvim') ? stdpath('config') : split(&runtimepath, ',')[0]
 
 	" Try common config locations
