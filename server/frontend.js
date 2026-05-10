@@ -4,12 +4,57 @@
 (function() {
 	var webSocket, lastSelection = '', errorIndicator;
 	var endSession = false;
+	var connectionStatus = 'connecting';
+	var reconnectAttempts = 0;
+	var maxReconnectDelay = 30000;
+	var baseDelay = 1000;
+	var statusIndicator;
+
+	function updateStatus(state) {
+		connectionStatus = state;
+		if (statusIndicator) {
+			statusIndicator.textContent = state;
+			statusIndicator.className = 'render-status-' + state;
+		}
+	}
+
+	function createStatusIndicator() {
+		if (statusIndicator) return;
+		statusIndicator = document.createElement('div');
+		statusIndicator.className = 'render-status-indicator';
+		Object.assign(statusIndicator.style, {
+			position: 'fixed', bottom: '10px', right: '10px',
+			padding: '8px 12px', borderRadius: '4px',
+			fontSize: '12px', fontFamily: 'monospace',
+			zIndex: '999999', pointerEvents: 'none'
+		});
+		document.body.appendChild(statusIndicator);
+		updateStatus('connecting');
+	}
+
+	function getReconnectDelay() {
+		var delay = Math.min(baseDelay * Math.pow(2, reconnectAttempts), maxReconnectDelay);
+		return delay;
+	}
 
 	function connectSocket() {
+		createStatusIndicator();
+		updateStatus('connecting');
 		webSocket = new WebSocket('ws://' + location.host);
-		webSocket.onopen = () => {};
-		webSocket.onclose = () => { if (!endSession) setTimeout(connectSocket, 10000); };
-		webSocket.onerror = e => console.log('error:', e);
+		webSocket.onopen = () => {
+			reconnectAttempts = 0;
+			updateStatus('connected');
+		};
+		webSocket.onclose = () => {
+			if (!endSession) {
+				updateStatus('disconnected');
+				var delay = getReconnectDelay();
+				reconnectAttempts++;
+				updateStatus('reconnecting (' + reconnectAttempts + ')');
+				setTimeout(connectSocket, delay);
+			}
+		};
+		webSocket.onerror = e => { if (!endSession) updateStatus('error'); };
 		webSocket.onmessage = e => {
 			var msg = JSON.parse(e.data);
 			switch (msg.command) {

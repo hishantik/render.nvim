@@ -70,3 +70,15 @@
 .render-error-indicator:hover > div{
 	display: block;
 }
+
+.render-status-indicator{
+	background: #333;
+	color: #fff;
+	transition: background-color 0.3s;
+}
+
+.render-status-connected{ background: #2e7d32; }
+.render-status-disconnected{ background: #f57c00; }
+.render-status-reconnecting{ background: #1976d2; }
+.render-status-error{ background: #c62828; }
+.render-status-connecting{ background: #616161; }

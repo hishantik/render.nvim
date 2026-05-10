@@ -1,6 +1,6 @@
 "File:        render.vim
 "Version:     0.0.1
-"Repository:  https://github.com/turbio/vim-render
+"Repository:  https://github.com/Hishantik/render.nvim
 "License:     Released under the GPL V2 license
 
 if !exists("g:render_server_log")
