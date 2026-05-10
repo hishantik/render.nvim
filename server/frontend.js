@@ -26,7 +26,8 @@
 			position: 'fixed', bottom: '10px', right: '10px',
 			padding: '8px 12px', borderRadius: '4px',
 			fontSize: '12px', fontFamily: 'monospace',
-			zIndex: '999999', pointerEvents: 'none'
+			zIndex: '999999', pointerEvents: 'none',
+			backgroundColor: '#afa2ff', color: '#636b61'
 		});
 		document.body.appendChild(statusIndicator);
 		updateStatus('connecting');
