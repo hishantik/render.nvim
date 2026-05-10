@@ -1,0 +1,246 @@
+*render.nvim.txt* Plugin for live HTML, CSS, and JavaScript editing in Neovim
+*render*
+
+=============================================================================
+CONTENTS                                                       *render-toc*
+
+  1. Overview..............|render-overview|
+  2. Tech Stack...........|render-tech-stack|
+  3. Commands.............|render-commands|
+  4. Options..............|render-options|
+  5. How It Works.........|render-architecture|
+  6. Performance..........|render-performance|
+  7. Installation.........|render-installation|
+
+=============================================================================
+1. Overview                                                   *render-overview*
+
+Render.nvim is a live preview plugin for Neovim that enables real-time editing
+of HTML, CSS, and JavaScript files directly in the browser. Changes made in
+the editor are instantly reflected in the browser without requiring a page
+reload, making it ideal for web development workflows.
+
+Author:  Hishantik
+License: GPL-2.0
+Repository: https://github.com/hishantik/render.nvim
+
+=============================================================================
+2. Tech Stack                                               *render-tech-stack*
+
+The plugin uses a multi-layered architecture:
+
+  +------------+     +----------+     +--------+     +------------+
+  | Neovim     | --> | Python   | --> | Node.js| --> | Browser    |
+  | (Vimscript)|     | (Bridge) |     | Server |     | (Client)   |
+  +------------+     +----------+     +--------+     +------------+
+
+Editor Layer
+  - Vimscript for plugin commands and autocmds
+  - Lua support for future optimizations
+
+Bridge Layer
+  - Python 2/3 for subprocess communication
+  - HTTP POST requests to send commands to server
+  - Supports Python 2.7+ and Python 3.x
+
+Server Layer
+  - Node.js runtime for server execution
+  - WebSocket for real-time browser communication
+  - htmlparser2 + domhandler for HTML AST parsing
+  - postcss + csslint for CSS processing
+  - HTMLHint for HTML validation
+  - mime for content-type detection
+
+Client Layer (Injected)
+  - Vanilla JavaScript (no dependencies)
+  - CSS highlighting for selected elements
+  - Diff-based DOM updates
+
+=============================================================================
+3. Commands                                                   *render-commands*
+
+:Render                                                           *:Render*
+  Starts the render server and optionally opens the default browser.
+  If an HTML file is open, it will be displayed for live editing.
+
+:RenderStop                                                   *:RenderStop*
+  Shuts down the server and stops sending commands to the browser.
+
+:RenderReload                                               *:RenderReload*
+  Force reloads the current webpage.
+
+:RenderEval {args}                                             *:RenderEval*
+  Evaluates JavaScript in the browser:
+  - With arguments: evaluates the provided JavaScript string
+  - Without arguments: evaluates the entire current buffer
+
+=============================================================================
+4. Options                                                     *render-options*
+
+g:render_browser_command                             *g:render_browser_command*
+
+  Type: |Number| or |String|
+  Default: `0`
+
+  If set to a |String|, used as the command to launch the browser.
+  If set to `0`, browser is auto-detected using `xdg-open`.
+
+g:render_auto_start_browser                       *g:render_auto_start_browser*
+
+  Type: |Number|
+  Default: `1`
+
+  Whether to start the browser when |:Render| is executed.
+
+g:render_refresh_on_save                             *g:render_refresh_on_save*
+
+  Type: |Number|
+  Default: `0`
+
+  Whether to reload the webpage when its corresponding buffer is saved.
+
+g:render_eval_on_save                                   *g:render_eval_on_save*
+
+  Type: |Number|
+  Default: `1`
+
+  Whether to evaluate JavaScript buffers when saved.
+
+g:render_auto_start_server                         *g:render_auto_start_server*
+
+  Type: |Number|
+  Default: `1`
+
+  Whether to start the Node.js server when |:Render| is executed.
+
+g:render_server_allow_remote_connections
+
+  Type: |Number|
+  Default: `0`
+
+  Whether to allow other machines to connect to the server. Useful for
+  testing on multiple platforms simultaneously.
+
+g:render_server_port                                     *g:render_server_port*
+
+  Type: |Number|
+  Default: `13378 + (pid % 52358)` (random-ish based on process ID)
+
+  The port the server uses for serving files and receiving commands.
+
+g:render_server_path                                     *g:render_server_path*
+
+  Type: |String|
+  Default: `'http://127.0.0.1'`
+
+  Address of the server (should start with 'http://' without port).
+
+g:render_server_log                                       *g:render_server_log*
+
+  Type: |String|
+  Default: `'/tmp/render_server_logfile'`
+
+  Path to log file for server output.
+
+=============================================================================
+5. How It Works                                             *render-architecture*
+
+The architecture follows a three-tier pattern:
+
+  Editor -- Bridge --> Server -- WebSocket --> Browser
+
+Step 1: Server Initialization
+  - Python bridge launches `node launch.js` with configured port
+  - Server starts HTTP and WebSocket listeners
+  - Server waits for editor root and current buffer info
+
+Step 2: HTML Serving
+  - Incoming HTML is parsed into an AST (Abstract Syntax Tree)
+  - Each element is assigned a unique index for selection tracking
+  - Client scripts (frontend.js, frontend.css) are injected
+  - Transformed HTML is served to the browser
+
+Step 3: Edit Synchronization
+  - User edits in Neovim trigger autocmds
+  - Changes are sent via HTTP POST to the server
+  - Server diffs new content against existing AST
+  - Minimal operations are broadcast via WebSocket
+  - Client applies diff operations to DOM
+
+Step 4: Cursor Synchronization
+  - Cursor position is tracked via TextChanged/CursorMoved events
+  - Line/column are converted to character index
+  - Server finds matching AST element by index
+  - Element's index is sent to client for highlighting
+
+Step 5: CSS Selection
+  - CSS files are parsed using postcss
+  - Cursor position maps to selector via postcss source maps
+  - Selector is broadcast to client
+  - Browser highlights matching CSS rules
+
+=============================================================================
+6. Performance                                             *render-performance*
+
+Parsing Strategy
+  - HTML is parsed into DOM using htmlparser2
+  - Elements are only re-indexed on initial parse
+  - Subsequent edits use diff-based updates
+  - Reduces operations to only changed elements
+
+Network Efficiency
+  - WebSocket provides persistent connection
+  - JSON-based command protocol is lightweight
+  - Only changed elements are sent (not full page)
+  - Server-side file caching for static assets
+
+Latency Characteristics
+  - Typical round-trip: 5-20ms (local)
+  - Initial parse: 50-200ms (depending on file size)
+  - Diff updates: 1-5ms per change
+
+Memory Usage
+  - AST stored in memory per open file
+  - CSS parsed once per file session
+  - WebSocket connections are lightweight
+
+Performance Considerations
+  - Large files (>10MB) may cause parsing delays
+  - Very frequent changes may overwhelm client
+  - Remote connections add network latency
+  - CSS linting adds ~10-50ms per save
+
+=============================================================================
+7. Installation                                           *render-installation*
+
+Prerequisites
+  - Neovim (or Vim with Python support)
+  - Node.js (v12 or higher recommended)
+  - Python 2.7+ or Python 3.x
+
+Setup with vim-plug:
+>
+  Plug 'hishantik/render.nvim'
+<
+
+Setup with packer:
+>
+  use 'hishantik/render.nvim'
+<
+
+Manual Setup:
+  1. Clone repository to ~/.config/nvim/plugged/render.nvim
+  2. Install Node.js dependencies:
+>
+    cd ~/.config/nvim/plugged/render.nvim/server
+    npm install
+<
+
+Usage:
+  1. Open an HTML file in Neovim
+  2. Run |:Render| to start the server and browser
+  3. Edit HTML/CSS/JS and see changes in real-time
+  4. Use |:RenderStop| to shut down the server
+
+=============================================================================
+vim:tw=78:ts=2:sts=2:sw=2:ft=help:norl:
