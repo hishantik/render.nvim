@@ -112,12 +112,20 @@ function! render#setVars()
 	call render#sendCommand('v:'.len(cwd).':'.cwd)
 endfunction
 
+let s:buffer_timer = 0
+
 function! render#bufferChange()
-	"one day... this will be better, but for now... just send the whole buffer
-	"every time there is a single change
-	"this ends up sending WAY to much (like 1Mb/s according to ifconfig) over
-	"the internal ip stack and also probably lags vim a lot if requests aren't async call
+	" Debounce: cancel previous timer and create new one
+	" Wait 100ms after last keystroke before sending
+	if s:buffer_timer > 0
+		call timer_stop(s:buffer_timer)
+	endif
+	let s:buffer_timer = timer_start(100, function('s:sendBufferDeferred'))
+endfunction
+
+function! s:sendBufferDeferred(timer)
 	call render#sendCurrentBuffer()
+	let s:buffer_timer = 0
 endfunction
 
 function! render#setCursor()
