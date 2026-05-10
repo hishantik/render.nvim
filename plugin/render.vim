@@ -51,18 +51,9 @@ if !exists("g:render_csslint_rules")
 	let g:render_csslint_rules = []
 endif
 
-" Load global config from plugin directory
-let s:plugin_root = fnamemodify(expand('<sfile>:p:h:h'), ':p:h')
-let s:global_config = s:plugin_root . '/render.vim'
-if filereadable(s:global_config)
-	execute 'source ' . fnameescape(s:global_config)
-endif
-
 command! -nargs=0 Render call render#start()
 command! -nargs=0 RenderStop  call render#stop()
 command! -nargs=0 RenderReload call render#reload()
 command! -nargs=* RenderEval call render#evalFile(<f-args>)
 command! -nargs=0 RenderMobile call render#mobile()
 command! -nargs=+ RenderConfigure call render#configure(<f-args>)
-command! -nargs=0 RenderInit call render#init()
-command! -nargs=0 RenderConfig call render#config()
