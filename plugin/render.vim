@@ -60,6 +60,10 @@ command! -nargs=+ RenderConfigure call render#configure(<f-args>)
 command! -nargs=0 RenderConfig call render#config()
 
 function! render#config()
-	let l:config_path = has('nvim') ? stdpath('config') . '/init.vim' : $HOME . '/.vimrc'
-	execute 'edit ' . fnameescape(l:config_path)
+	let l:config_path = has('nvim') ? stdpath('config') . '/init.lua' : $HOME . '/.vimrc'
+	if filereadable(l:config_path)
+		execute 'edit ' . fnameescape(l:config_path)
+	else
+		echom 'Config file not found: ' . l:config_path
+	endif
 endfunction
