@@ -1,7 +1,7 @@
 {
   "name": "render",
   "version": "1.0.0",
-  "description": "",
+  "description": "Live preview plugin for Neovim",
   "main": "render.js",
   "dependencies": {
     "csslint": "^1.0.5",
@@ -13,13 +13,6 @@
     "postcss": "^8.2.10",
     "qrcode": "^1.5.4",
     "websocket": "^1.0.32"
-  },
-  "devDependencies": {
-    "chai": "*",
-    "mocha": "^8.1.3"
-  },
-  "scripts": {
-    "test": "mocha"
   },
   "repository": {
     "type": "git",
