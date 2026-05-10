@@ -55,4 +55,5 @@ command! -nargs=0 Render call render#start()
 command! -nargs=0 RenderStop  call render#stop()
 command! -nargs=0 RenderReload call render#reload()
 command! -nargs=* RenderEval call render#evalFile(<f-args>)
+command! -nargs=0 RenderMobile call render#mobile() " Open QR code for mobile preview
 command! -nargs=+ RenderConfigure call render#configure(<f-args>)

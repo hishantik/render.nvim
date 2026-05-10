@@ -141,3 +141,14 @@ function! render#configure(type, config)
 	\})
 	call render#sendCommand('c:'.len(a:type).':'.a:type.':'.len(json_config).':'.json_config)
 endfunction
+
+function! render#mobile()
+	let url = g:render_server_path.':'.g:render_server_port.'/qr'
+	if has("unix")
+		if system("uname -s") =~ "Darwin"
+			call system('open '.shellescape(url).' &')
+		else
+			call system('xdg-open '.shellescape(url).' &')
+		endif
+	endif
+endfunction

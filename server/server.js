@@ -4,6 +4,7 @@ var http = require("http");
 var fs = require("fs");
 var path = require("path");
 var mime = require("mime");
+var QRCode = require("qrcode");
 var filemanager = require("./filemanager.js");
 var htmlfile = require("./htmlfile.js");
 var cssfile = require("./cssfile.js");
@@ -138,6 +139,40 @@ Server.prototype.handleFileRequest = function(request, response) {
 			response.writeHead(302, { Location: currentFile.path.relative });
 			response.end();
 		}
+		return;
+	}
+
+	if (request.url === '/qr') {
+		const url = `http://${request.headers.host}`;
+		QRCode.toDataURL(url, { margin: 2 }, (err, dataUrl) => {
+			if (err) {
+				response.writeHead(500);
+				response.end('Failed to generate QR code');
+				return;
+			}
+			const html = `<!DOCTYPE html>
+<html>
+<head><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mobile Preview - render.nvim</title>
+<style>
+	body { font-family: system-ui; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; background: #1a1a2e; color: #fff; }
+	h1 { margin-bottom: 20px; }
+	img { border: 4px solid #fff; border-radius: 8px; max-width: 250px; }
+	.url { margin-top: 20px; padding: 12px 20px; background: #16213e; border-radius: 6px; font-family: monospace; word-break: break-all; text-align: center; }
+	.btn { margin-top: 15px; padding: 10px 20px; background: #0f3460; color: #fff; border: none; border-radius: 6px; cursor: pointer; text-decoration: none; }
+	a { color: #e94560; }
+</style>
+</head>
+<body>
+	<h1>Scan to Preview on Mobile</h1>
+	<img src="${dataUrl}" alt="QR Code">
+	<div class="url">${url}</div>
+	<a class="btn" href="${url}" target="_blank">Open Preview</a>
+</body>
+</html>`;
+			response.writeHead(200, { "Content-Type": "text/html" });
+			response.end(html);
+		});
 		return;
 	}
 
