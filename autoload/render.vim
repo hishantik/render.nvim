@@ -134,12 +134,13 @@ function! render#sendCommand(msg)
 	endif
 endfunction
 
-function! render#configure(type, config)
-	let json_config = json_encode({
-		\ 'rules': type == 'html' ? g:render_html_rules : g:render_csslint_rules,
-		\ 'customValidators': type == 'css' ? [] : []
+function! render#configure(typeArg, config)
+	let l:rules = a:typeArg == 'html' ? g:render_html_rules : g:render_csslint_rules
+	let l:json_config = json_encode({
+		\ 'rules': l:rules,
+		\ 'customValidators': a:typeArg == 'css' ? [] : []
 	\})
-	call render#sendCommand('c:'.len(a:type).':'.a:type.':'.len(json_config).':'.json_config)
+	call render#sendCommand('c:'.len(a:typeArg).':'.a:typeArg.':'.len(l:json_config).':'.l:json_config)
 endfunction
 
 function! render#mobile()
