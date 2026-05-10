@@ -15,6 +15,10 @@ A live preview plugin for Neovim that enables real-time editing of HTML, CSS, an
 - **Error Display** — Shows HTML/CSS validation errors inline
 - **WebSocket Communication** — Fast, persistent connection between editor and browser
 - **Diff-based Updates** — Efficient DOM updates using minimal operations
+- **TypeScript Support** — Live preview for .ts and .tsx files
+- **WebSocket Reconnection** — Automatic reconnection with visual status indicator
+- **Custom Error Handlers** — Configurable HTML/CSS validation rules
+- **Mobile Preview** — QR code generation for testing on mobile devices
 
 ## Tech Stack
 
@@ -82,6 +86,8 @@ npm install
 | `:RenderStop` | Stop the server |
 | `:RenderReload` | Force reload the page |
 | `:RenderEval {code}` | Execute JavaScript in browser |
+| `:RenderMobile` | Open QR code page for mobile preview |
+| `:RenderConfigure {type} {config}` | Configure validation rules |
 
 ### Getting Started
 
@@ -120,6 +126,8 @@ npm install
 | `g:render_server_port` | `pid-based` | Server port number |
 | `g:render_server_path` | `http://127.0.0.1` | Server URL |
 | `g:render_server_log` | `/tmp/render_server_logfile` | Server log path |
+| `g:render_html_rules` | `{}` | Custom HTML validation rules |
+| `g:render_csslint_rules` | `[]` | Custom CSSLint rules |
 
 ### Example Configuration
 
@@ -135,6 +143,16 @@ let g:render_refresh_on_save = 1
 
 " Use specific port
 let g:render_server_port = 8080
+
+" Custom HTML validation rules
+let g:render_html_rules = {
+	\ 'tag-pair': true,
+	\ 'attr-lowercase': true,
+	\ 'doctype-first': false
+\}
+
+" Custom CSSLint rules (empty = all enabled)
+let g:render_csslint_rules = ['compatible-vendor-prefixes']
 ```
 
 ## How It Works
