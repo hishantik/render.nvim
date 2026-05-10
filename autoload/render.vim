@@ -174,24 +174,27 @@ endfunction
 function! s:get_local_ip() abort
 	if has("unix")
 		" Try hostname -I first
-		let l:output = system('hostname -I')
+		let l:output = system('hostname -I 2>/dev/null')
 		if v:shell_error == 0 && !empty(l:output)
 			let l:ips = split(l:output)
 			for l:ip in l:ips
-				if l:ip =~ '^\d\+\.\d\+\.\d\+\.\d\+$' && l:ip !=# '127.0.0.1' && l:ip !=# '0.0.0.0'
+				" Skip localhost and wildcard addresses
+				if l:ip =~ '^\d\{1,3}\.\d\{1,3}\.\d\{1,3}\.\d\{1,3}$'
+							\ && l:ip !=# '127.0.0.0' && l:ip !=# '127.0.0.1'
+							\ && l:ip !=# '0.0.0.0' && l:ip !=# '0.0.0'
 					return l:ip
 				endif
 			endfor
 		endif
 
-		" Fallback: parse /proc/net/fib_trie
-		let l:lines = readfile('/proc/net/fib_trie')
-		for l:line in l:lines
-			let l:match = matchlist(l:line, '\(\d\+\.\d\+\.\d\+\.\d\+\)')
-			if !empty(l:match) && l:match[1] !=# '127.0.0.1' && l:match[1] !=# '0.0.0.0'
+		" Fallback: use ip command
+		let l:output = system('ip route get 1 | head -1 2>/dev/null')
+		if v:shell_error == 0 && !empty(l:output)
+			let l:match = matchlist(l:output, 'src\s\+\(\d\+\.\d\+\.\d\+\.\d\+\)')
+			if !empty(l:match)
 				return l:match[1]
 			endif
-		endfor
+		endif
 	endif
 	return ''
 endfunction
