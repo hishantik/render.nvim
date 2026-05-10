@@ -183,5 +183,3 @@ function! s:get_local_ip() abort
 	endif
 	return ''
 endfunction
-
-endfunction
