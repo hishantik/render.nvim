@@ -58,29 +58,4 @@ command! -nargs=* RenderEval call render#evalFile(<f-args>)
 command! -nargs=0 RenderMobile call render#mobile()
 command! -nargs=+ RenderConfigure call render#configure(<f-args>)
 command! -nargs=0 RenderInit call render#init()
-
-function! render#init()
-	let l:plugin_path = expand('<sfile>:p:h:h')
-	let l:example_file = l:plugin_path . '/render.vim.example'
-	let l:config_path = has('nvim') ? stdpath('config') : split(&runtimepath, ',')[0]
-
-	" Try common config locations
-	let l:locations = [
-		\ expand('~/.config/nvim/'),
-		\ expand('~/.vim/'),
-		\ l:config_path
-	\]
-
-	for l:dir in l:locations
-		if isdirectory(l:dir) && filewritable(l:dir) == 2
-			let l:dest = l:dir . 'render.vim.example'
-			call writefile(readfile(l:example_file, 'b'), l:dest, 'b')
-			echom 'Example config copied to: ' . l:dest
-			echom 'Copy contents to your init.vim or source this file.'
-			return
-		endif
-	endfor
-
-	echom 'Could not find writable config directory.'
-	echom 'Example file location: ' . l:example_file
-endfunction
+command! -nargs=0 RenderConfig call render#config()
