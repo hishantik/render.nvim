@@ -173,11 +173,23 @@ endfunction
 
 function! s:get_local_ip() abort
 	if has("unix")
-		let l:ips = split(system('hostname -I'), ' ')
-		for l:ip in l:ips
-			" Skip IPv6 and localhost addresses
-			if l:ip =~ '^\d\+\.\d\+\.\d\+\.\d\+$' && l:ip !=# '127.0.0.1'
-				return l:ip
+		" Try hostname -I first
+		let l:output = system('hostname -I')
+		if v:shell_error == 0 && !empty(l:output)
+			let l:ips = split(l:output)
+			for l:ip in l:ips
+				if l:ip =~ '^\d\+\.\d\+\.\d\+\.\d\+$' && l:ip !=# '127.0.0.1'
+					return l:ip
+				endif
+			endfor
+		endif
+
+		" Fallback: parse /proc/net/fib_trie
+		let l:lines = readfile('/proc/net/fib_trie')
+		for l:line in l:lines
+			let l:match = matchlist(l:line, '\(\d\+\.\d\+\.\d\+\.\d\+\)')
+			if !empty(l:match) && l:match[1] !=# '127.0.0.1'
+				return l:match[1]
 			endif
 		endfor
 	endif
