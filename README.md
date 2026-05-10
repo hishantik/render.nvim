@@ -86,6 +86,25 @@ cd ~/.config/nvim/plugged/render.nvim/server
 npm install
 ```
 
+### Termux (Android)
+
+For Android devices using Termux:
+
+```bash
+# Install required packages
+pkg install neovim nodejs termux-open
+
+# Clone plugin (or use a plugin manager)
+mkdir -p ~/.config/nvim/plugged
+git clone https://github.com/hishantik/render.nvim.git ~/.config/nvim/plugged/render.nvim
+
+# Install Node.js dependencies
+cd ~/.config/nvim/plugged/render.nvim/server
+npm install
+```
+
+> **Note:** `termux-open` is required for opening URLs in the browser on Android.
+
 ## Usage
 
 ### Basic Commands

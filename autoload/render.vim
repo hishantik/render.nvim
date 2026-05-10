@@ -36,9 +36,11 @@ function! render#startBrowser(url)
 	if type(g:render_browser_command) == type(0)
 		if has("unix")
 			if system("uname -s") =~ "Darwin"
-				call system('open '.a:url.' &')
+				call system('open '.shellescape(a:url).' &')
+			elseif executable('termux-open')
+				call system('termux-open '.shellescape(a:url))
 			else
-				call system('xdg-open '.a:url.' &')
+				call system('xdg-open '.shellescape(a:url).' &')
 			endif
 		endif
 	else
@@ -162,12 +164,10 @@ function! render#mobile()
 		endif
 	endif
 
-	if has("unix")
-		if system("uname -s") =~ "Darwin"
-			call system('open '.shellescape(l:url).' &')
-		else
-			call system('xdg-open '.shellescape(l:url).' &')
-		endif
+	if executable('termux-open')
+		call system('termux-open '.shellescape(l:url))
+	elseif has("unix")
+		call system('xdg-open '.shellescape(l:url).' &')
 	endif
 endfunction
 
