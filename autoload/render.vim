@@ -144,12 +144,34 @@ function! render#configure(typeArg, config)
 endfunction
 
 function! render#mobile()
-	let url = g:render_server_path.':'.g:render_server_port.'/qr'
-	if has("unix")
-		if system("uname -s") =~ "Darwin"
-			call system('open '.shellescape(url).' &')
-		else
-			call system('xdg-open '.shellescape(url).' &')
+	let l:url = g:render_server_path.':'.g:render_server_port.'/qr'
+
+	" When remote connections enabled, use detected LAN IP instead of 127.0.0.1
+	if g:render_server_allow_remote_connections
+		let l:local_ip = s:get_local_ip()
+		if !empty(l:local_ip)
+			let l:url = 'http://'.l:local_ip.':'.g:render_server_port.'/qr'
 		endif
 	endif
+
+	if has("unix")
+		if system("uname -s") =~ "Darwin"
+			call system('open '.shellescape(l:url).' &')
+		else
+			call system('xdg-open '.shellescape(l:url).' &')
+		endif
+	endif
+endfunction
+
+function! s:get_local_ip() abort
+	if has("unix")
+		let l:ips = split(system('hostname -I'), ' ')
+		for l:ip in l:ips
+			" Skip IPv6 and localhost addresses
+			if l:ip =~ '^\d\+\.\d\+\.\d\+\.\d\+$' && l:ip !=# '127.0.0.1'
+				return l:ip
+			endif
+		endfor
+	endif
+	return ''
 endfunction
