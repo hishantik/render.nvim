@@ -19,6 +19,7 @@ A live preview plugin for Neovim that enables real-time editing of HTML, CSS, an
 - **WebSocket Reconnection** — Automatic reconnection with visual status indicator
 - **Custom Error Handlers** — Configurable HTML/CSS validation rules
 - **Mobile Preview** — QR code generation for testing on mobile devices
+- **Debounced Updates** — Efficient bandwidth usage with 100ms debounce
 
 ## Tech Stack
 
@@ -65,6 +66,18 @@ Plug 'hishantik/render.nvim'
 use 'hishantik/render.nvim'
 ```
 
+### Using lazy.nvim
+
+```lua
+{
+  'hishantik/render.nvim',
+  ft = { 'html', 'css', 'javascript', 'typescript', 'tsx' },
+  init = function()
+    -- Optional configuration here
+  end
+}
+```
+
 ### Manual Installation
 
 ```bash
@@ -87,7 +100,7 @@ npm install
 | `:RenderReload` | Force reload the page |
 | `:RenderEval {code}` | Execute JavaScript in browser |
 | `:RenderMobile` | Open QR code page for mobile preview |
-| `:RenderConfigure {type} {config}` | Configure validation rules |
+| `:RenderConfigure {type} {rules}` | Configure validation rules |
 
 ### Getting Started
 
@@ -112,6 +125,88 @@ npm install
 :RenderStop
 ```
 
+## Using TypeScript Files
+
+TypeScript (.ts) and TSX (.tsx) files are automatically supported:
+
+1. Open a TypeScript file: `:e component.tsx`
+2. Run `:Render` as usual
+3. JavaScript changes are reflected in real-time
+
+Note: Save JS files (`:w`) to evaluate them in the browser when `g:render_eval_on_save = 1`.
+
+## Using Mobile Preview
+
+Test your designs on mobile devices connected to the same network.
+
+### Setup for Local Network Access
+
+```vim
+" Enable remote connections (binds to 0.0.0.0)
+let g:render_server_allow_remote_connections = 1
+```
+
+### Generate QR Code
+
+```vim
+" Start the server first
+:Render
+
+" Open QR code page in browser
+:RenderMobile
+```
+
+The QR code will automatically use your LAN IP (e.g., `http://192.168.1.100:13378/qr`) when remote connections are enabled. Scan with your phone to preview.
+
+### Without Remote Connections
+
+If `g:render_server_allow_remote_connections = 0` (default), the QR code will use `127.0.0.1` which works only on the same machine.
+
+## Custom Error Handlers
+
+Configure validation rules for HTML and CSS to match your project's standards.
+
+### Configure HTML Rules
+
+```vim
+" Disable specific HTMLHint rules
+let g:render_html_rules = {
+    \ 'tag-pair': v:true,
+    \ 'attr-lowercase': v:true,
+    \ 'doctype-first': v:false,
+    \ 'spec-char-escape': v:true
+\}
+
+" Or use RenderConfigure command
+:RenderConfigure html {'tag-pair': v:true, 'doctype-first': v:false}
+```
+
+### Configure CSS Rules
+
+```vim
+" Enable specific CSSLint rules (empty = all enabled)
+let g:render_csslint_rules = ['compatible-vendor-prefixes', 'box-model']
+
+" Or use RenderConfigure command
+:RenderConfigure css ['compatible-vendor-prefixes']
+```
+
+### How It Works
+
+- HTML validation uses [HTMLHint](https://htmlhint.com/)
+- CSS validation uses [CSSLint](https://github.com/CSSLint/csslint)
+- Rules are sent to the server and applied to new file changes
+
+## WebSocket Reconnection
+
+The plugin automatically handles connection drops with exponential backoff reconnection:
+
+1. Connection lost → Status indicator shows "reconnecting..."
+2. Exponential backoff: 1s, 2s, 4s, 8s... up to 30s max
+3. Connection restored → Status indicator disappears
+
+No manual intervention needed - just keep editing!
+
 ## Configuration
 
 ### Options
@@ -128,8 +223,9 @@ npm install
 | `g:render_server_log` | `/tmp/render_server_logfile` | Server log path |
 | `g:render_html_rules` | `{}` | Custom HTML validation rules |
 | `g:render_csslint_rules` | `[]` | Custom CSSLint rules |
+| `g:render_server_allow_remote_connections` | `0` | Allow mobile/network access |
 
-### Example Configuration
+### Complete Configuration Example
 
 ```vim
 " Use Chrome instead of default browser
@@ -141,17 +237,20 @@ let g:render_auto_start_browser = 0
 " Reload page on HTML save
 let g:render_refresh_on_save = 1
 
+" Allow mobile device access
+let g:render_server_allow_remote_connections = 1
+
 " Use specific port
 let g:render_server_port = 8080
 
 " Custom HTML validation rules
 let g:render_html_rules = {
-	\ 'tag-pair': true,
-	\ 'attr-lowercase': true,
-	\ 'doctype-first': false
+    \ 'tag-pair': v:true,
+    \ 'attr-lowercase': v:true,
+    \ 'doctype-first': v:false
 \}
 
-" Custom CSSLint rules (empty = all enabled)
+" Custom CSSLint rules
 let g:render_csslint_rules = ['compatible-vendor-prefixes']
 ```
 
@@ -163,7 +262,7 @@ Vim ──Python──> Node Server ──WebSocket──> Browser
 
 1. **Server Start** — Python bridge launches Node.js server
 2. **File Serving** — HTML parsed into AST, client scripts injected
-3. **Change Detection** — Vim events trigger content sync
+3. **Change Detection** — Vim events trigger content sync (debounced 100ms)
 4. **Diff Updates** — Server computes minimal DOM operations
 5. **Broadcast** — Changes sent via WebSocket to browser
 6. **Apply** — Client updates DOM with minimal operations
@@ -181,6 +280,12 @@ Vim ──Python──> Node Server ──WebSocket──> Browser
 - Converts line/column to character index
 - Maps to AST element for browser highlighting
 
+### Buffer Updates
+
+- Changes are debounced (100ms) to reduce bandwidth
+- Sends full buffer after typing pause
+- Prevents excessive network traffic during rapid editing
+
 ## Performance
 
 | Operation | Latency |
@@ -188,10 +293,11 @@ Vim ──Python──> Node Server ──WebSocket──> Browser
 | Local round-trip | 5-20ms |
 | Initial HTML parse | 50-200ms |
 | Diff update | 1-5ms |
+| Debounce delay | 100ms |
 
 - Memory usage scales with open files
 - Large files (>10MB) may cause delays
-- Remote connections add network latency
+- Debouncing reduces bandwidth significantly
 
 ## License
 
