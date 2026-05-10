@@ -57,3 +57,9 @@ command! -nargs=0 RenderReload call render#reload()
 command! -nargs=* RenderEval call render#evalFile(<f-args>)
 command! -nargs=0 RenderMobile call render#mobile()
 command! -nargs=+ RenderConfigure call render#configure(<f-args>)
+command! -nargs=0 RenderConfig call render#config()
+
+function! render#config()
+	let l:config_path = has('nvim') ? stdpath('config') . '/init.vim' : $HOME . '/.vimrc'
+	execute 'edit ' . fnameescape(l:config_path)
+endfunction
