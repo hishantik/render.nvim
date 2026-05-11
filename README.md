@@ -28,20 +28,20 @@ A live preview plugin for Neovim that enables real-time editing of HTML, CSS, an
 │                         Architecture                            │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                 │
-│  ┌──────────┐    ┌──────────┐    ┌──────────┐    ┌──────────┐  │
-│  │  Neovim  │ -> │  Python  │ -> │  Node.js │ -> │  Browser │  │
-│  │ (Vimscript)  │   │ (Bridge) │    │ (Server) │    │ (Client) │  │
-│  └──────────┘    └──────────┘    └──────────┘    └──────────┘  │
+│  ┌────────────┐    ┌──────────┐    ┌──────────┐    ┌──────────┐ │
+│  │  Neovim    │ -> │  Python  │ -> │  Node.js │ -> │ Browser  │ │
+│  | (Vimscript)|    │ (Bridge) │    │ (Server) │    | (Client) │ |
+│  └────────────┘    └──────────┘    └──────────┘    └──────────┘ │
 │                                                                 │
 ├─────────────────────────────────────────────────────────────────┤
 │                         Technologies                            │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                 │
-│  Editor:    Vimscript / Lua                                    │
-│  Bridge:    Python 2/3 (HTTP communication)                    │
-│  Server:    Node.js + WebSocket                                │
+│  Editor:    Vimscript / Lua                                     │
+│  Bridge:    Python 2/3 (HTTP communication)                     │
+│  Server:    Node.js + WebSocket                                 │
 │  Parsing:   htmlparser2, domhandler, postcss, csslint           │
-│  Client:    Vanilla JavaScript (no dependencies)               │
+│  Client:    Vanilla JavaScript (no dependencies)                │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
@@ -57,7 +57,7 @@ A live preview plugin for Neovim that enables real-time editing of HTML, CSS, an
 ### Using vim-plug
 
 ```vim
-Plug 'hishantik/render.nvim'
+Plug 'Hishantik/render.nvim'
 ```
 
 After installation, install dependencies:
@@ -69,7 +69,7 @@ npm install --prefix server
 ### Using packer.nvim
 
 ```lua
-use 'hishantik/render.nvim'
+use 'Hishantik/render.nvim'
 ```
 
 After installation, install dependencies:
@@ -82,7 +82,7 @@ npm install --prefix server
 
 ```lua
 {
-  'hishantik/render.nvim',
+  'Hishantik/render.nvim',
   ft = { 'html', 'css', 'javascript', 'typescript', 'tsx' },
   build = function()
     -- Install Node.js dependencies on plugin installation/update
