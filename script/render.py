@@ -29,7 +29,7 @@ def send(msg):
         print("render error: " + str(e))
 
 
-def startServer():
+def start_server():
     global render_server_process
     if render_server_process is not None:
         print('server already running')
@@ -62,7 +62,7 @@ def startServer():
         print('could not start render server: ' + str(e))
 
 
-def stopServer():
+def stop_server():
     global render_server_process
 
     if render_server_process is None:
