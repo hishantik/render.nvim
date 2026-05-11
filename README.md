@@ -111,7 +111,7 @@ For Android devices using Termux:
 
 ```bash
 # Install required packages
-pkg install neovim nodejs termux-open
+pkg install neovim nodejs termux-open iproute2
 
 # Clone plugin (or use a plugin manager)
 mkdir -p ~/.config/nvim/plugged
@@ -124,6 +124,7 @@ npm install --ignore-scripts
 
 > **Note:** `termux-open` is required for opening URLs in the browser on Android.
 > **Note:** `--ignore-scripts` skips native C++ module compilation which fails on Android without NDK.
+> **Note:** `iproute2` provides the `ip` command needed for LAN IP detection (required for mobile QR code preview).
 
 ### Configuration for Termux
 

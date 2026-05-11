@@ -173,22 +173,38 @@ endfunction
 
 function! s:get_local_ip() abort
 	if has("unix")
-		" Try hostname -I first
+		" Try `ip addr show` first (works on Termux where hostname -I doesn't exist)
+		let l:output = system('ip addr show 2>/dev/null | grep "inet "')
+		if v:shell_error == 0 && !empty(l:output)
+			let l:lines = split(l:output, '\n')
+			for l:line in l:lines
+				" Extract IP from "inet 192.168.1.96/24 brd 192.168.1.255"
+				let l:match = matchlist(l:line, 'inet\s\+\(\d\+\.\d\+\.\d\+\.\d\+\)')
+				if !empty(l:match)
+					let l:ip = l:match[1]
+					" Skip loopback
+					if l:ip !=# '127.0.0.1'
+						return l:ip
+					endif
+				endif
+			endfor
+		endif
+
+		" Try hostname -I (not available on Termux, but works on standard Linux)
 		let l:output = system('hostname -I 2>/dev/null')
 		if v:shell_error == 0 && !empty(l:output)
 			let l:ips = split(l:output)
 			for l:ip in l:ips
-				" Skip localhost and wildcard addresses
 				if l:ip =~ '^\d\{1,3}\.\d\{1,3}\.\d\{1,3}\.\d\{1,3}$'
 							\ && l:ip !=# '127.0.0.0' && l:ip !=# '127.0.0.1'
-							\ && l:ip !=# '0.0.0.0' && l:ip !=# '0.0.0'
+							\ && l:ip !=# '0.0.0.0'
 					return l:ip
 				endif
 			endfor
 		endif
 
-		" Fallback: use ip command
-		let l:output = system('ip route get 1 | head -1 2>/dev/null')
+		" Fallback: use ip route get (also works on Termux)
+		let l:output = system('ip route get 1 2>/dev/null')
 		if v:shell_error == 0 && !empty(l:output)
 			let l:match = matchlist(l:output, 'src\s\+\(\d\+\.\d\+\.\d\+\.\d\+\)')
 			if !empty(l:match)
