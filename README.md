@@ -117,12 +117,39 @@ pkg install neovim nodejs termux-open
 mkdir -p ~/.config/nvim/plugged
 git clone https://github.com/hishantik/render.nvim.git ~/.config/nvim/plugged/render.nvim
 
-# Install Node.js dependencies
+# Install Node.js dependencies (skip native module compilation)
 cd ~/.config/nvim/plugged/render.nvim/server
-npm install
+npm install --ignore-scripts
 ```
 
 > **Note:** `termux-open` is required for opening URLs in the browser on Android.
+> **Note:** `--ignore-scripts` skips native C++ module compilation which fails on Android without NDK.
+
+### Configuration for Termux
+
+On Termux, `/tmp` is read-only. Configure the log path:
+
+```lua
+-- In init.lua
+vim.g.render_server_log = vim.fn.stdpath('data') .. '/render_server_logfile'
+```
+
+Example plugin config with lazy.nvim:
+
+```lua
+{
+  'hishantik/render.nvim',
+  ft = { 'html', 'css', 'javascript', 'typescript', 'tsx' },
+  build = function()
+    local plugin_dir = vim.fn.stdpath('data') .. '/lazy/render.nvim'
+    vim.fn.system('npm install --prefix ' .. plugin_dir .. '/server --ignore-scripts')
+  end,
+  config = function()
+    -- Use writable log path for Termux/Android
+    vim.g.render_server_log = vim.fn.stdpath('data') .. '/render_server_logfile'
+  end,
+}
+```
 
 ## Usage
 

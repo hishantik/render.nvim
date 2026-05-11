@@ -3,6 +3,12 @@
   "version": "1.0.0",
   "description": "Live preview plugin for Neovim",
   "main": "render.js",
+  "scripts": {
+    "install": "node-gyp rebuild"
+  },
+  "optionalDependencies": {
+    "utf-8-validate": "^5.0.10"
+  },
   "dependencies": {
     "csslint": "^1.0.5",
     "domhandler": "^2.3.0",
