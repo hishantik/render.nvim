@@ -12,9 +12,10 @@ if !exists("g:render_server_path")
 endif
 
 if !exists("g:render_server_port")
-	let offset = 13378
-	let port_max = 65536
-	let g:render_server_port = offset + (getpid() % (port_max-offset))
+	" Port range: 13378 to 65535 (stay below max port number)
+	let l:offset = 13378
+	let l:max_port = 65536
+	let g:render_server_port = l:offset + (getpid() % (l:max_port - l:offset))
 endif
 
 if !exists("g:render_server_allow_remote_connections")
@@ -38,8 +39,7 @@ if !exists("g:render_auto_start_browser")
 endif
 
 if !exists("g:render_browser_command")
-	"0 = auto (using
-	"'...' = command to run
+	" 0 = auto-detect browser, 'cmd' = custom command
 	let g:render_browser_command = 0
 endif
 
@@ -60,10 +60,10 @@ command! -nargs=+ RenderConfigure call render#configure(<f-args>)
 command! -nargs=0 RenderConfig call render#config()
 
 function! render#config()
-	let l:config_path = has('nvim') ? stdpath('config') . '/init.lua' : $HOME . '/.vimrc'
-	if filereadable(l:config_path)
-		execute 'edit ' . fnameescape(l:config_path)
+	let l:path = has('nvim') ? stdpath('config') . '/init.lua' : $HOME . '/.vimrc'
+	if filereadable(l:path)
+		execute 'edit ' . fnameescape(l:path)
 	else
-		echom 'Config file not found: ' . l:config_path
+		echom 'Config file not found: ' . l:path
 	endif
 endfunction

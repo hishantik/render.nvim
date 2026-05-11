@@ -50,17 +50,17 @@ endfunction
 
 function! render#startServer()
 	if has('python3')
-		python3 startServer()
+		python3 start_server()
 	elseif has('python')
-		python startServer()
+		python start_server()
 	endif
 endfunction
 
 function! render#stopServer()
 	if has('python3')
-		python3 stopServer()
+		python3 stop_server()
 	elseif has('python')
-		python stopServer()
+		python stop_server()
 	endif
 endfunction
 
@@ -102,11 +102,18 @@ function! render#reload()
 endfunction
 
 function! render#setFile()
-	let path = expand('%:p')
-	let bufname = bufname('%')
-	let bufnum = bufnr('%')
-	let contents = join(getline(1, '$'), "\n")
-	call render#sendCommand('f:'.len(bufnum).':'.bufnum.':'.len(bufname).':'.bufname.':'.len(path).':'.path.':'.len(&filetype).':'.&filetype.'b:'.len(contents).':'.contents)
+	let l:path = expand('%:p')
+	let l:bufname = bufname('%')
+	let l:bufnum = bufnr('%')
+	let l:contents = join(getline(1, '$'), "\n")
+
+	" Format: f:bufnum_len:bufnum:name_len:name:path_len:path:ft_len:ft:b:content_len:content
+	let l:header = printf('f:%d:%s:%d:%s:%d:%s:%d:%s',
+		\ len(l:bufnum), l:bufnum,
+		\ len(l:bufname), l:bufname,
+		\ len(l:path), l:path,
+		\ len(&filetype), &filetype)
+	call render#sendCommand(l:header.'b:'.len(l:contents).':'.l:contents)
 endfunction
 
 function! render#setVars()

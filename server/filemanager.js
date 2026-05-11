@@ -35,7 +35,7 @@ FileManager.prototype.newFile = function(id, name, filePath, type, source) {
 	createdFile.name = name;
 	createdFile.path = {
 		system: filePath,
-		relative: this.editorRoot && this.editorRoot !== 'undefined'
+		relative: this.editorRoot
 			? path.relative(this.editorRoot, filePath)
 			: path.basename(filePath)
 	};
@@ -44,8 +44,8 @@ FileManager.prototype.newFile = function(id, name, filePath, type, source) {
 };
 
 FileManager.prototype.getById = function(id) { return this.files[id]; };
-FileManager.prototype.getByPath = function() { throw 'not implemented'; };
-FileManager.prototype.getByName = function() { throw 'not implemented'; };
+FileManager.prototype.getByPath = function() { throw new Error('not implemented'); };
+FileManager.prototype.getByName = function() { throw new Error('not implemented'); };
 
 FileManager.prototype.getByWebPath = function(webPath) {
 	webPath = webPath.startsWith('/') ? webPath.slice(1) : webPath;

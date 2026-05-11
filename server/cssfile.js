@@ -59,13 +59,14 @@ CssFile.prototype.setContent = function(source, callback) {
 		return;
 	}
 
+	// Convert from 1-based to 0-based indexing (end column is exclusive)
 	for (const rule of this.parsed.nodes) {
 		rule.source.start.line--;
 		rule.source.start.column--;
 		rule.source.end.column++;
 	}
 
-	callback(null, changed ? null : null);
+	callback(null, changed);
 }
 
 module.exports = CssFile;
