@@ -1,50 +1,53 @@
-# render.nvim
+<p align="center">
+  <img src="assets/logo.svg" alt="render.nvim" width="720"/>
+</p>
 
-A live preview plugin for Neovim that enables real-time editing of HTML, CSS, and JavaScript files directly in the browser.
+<p align="center">
+  <strong>Live preview for Neovim</strong> — edit HTML, CSS, and JavaScript, see changes instantly in your browser.
+</p>
 
-![Python](https://img.shields.io/badge/Python-2.7%2B%2C%203.x-blue)
-![Node.js](https://img.shields.io/badge/Node.js-12%2B-green)
-![License](https://img.shields.io/badge/License-GPL--2.0-blue)
+<p align="center">
+  <img src="https://img.shields.io/badge/Python-2.7%2B%2C%203.x-blue?logo=python&logoColor=white" alt="Python"/>
+  <img src="https://img.shields.io/badge/Node.js-12%2B-green?logo=node.js&logoColor=white" alt="Node.js"/>
+  <img src="https://img.shields.io/badge/License-GPL--2.0-blue" alt="License"/>
+  <img src="https://img.shields.io/badge/Neovim-0.5%2B-green?logo=neovim&logoColor=white" alt="Neovim"/>
+</p>
+
+---
 
 ## Features
 
-- **Live Preview** — See changes instantly in your browser as you edit
+- **Live Preview** — see changes instantly in your browser as you edit
 - **Real-time Sync** — HTML, CSS, and JavaScript changes are reflected immediately
-- **Cursor Tracking** — Highlights the element under your cursor in the browser
-- **CSS Selection** — Click browser elements to jump to corresponding CSS rules
-- **Error Display** — Shows HTML/CSS validation errors inline
-- **WebSocket Communication** — Fast, persistent connection between editor and browser
-- **Diff-based Updates** — Efficient DOM updates using minimal operations
-- **TypeScript Support** — Live preview for .ts and .tsx files
-- **WebSocket Reconnection** — Automatic reconnection with visual status indicator
-- **Custom Error Handlers** — Configurable HTML/CSS validation rules
+- **Cursor Tracking** — highlights the element under your cursor in the browser
+- **CSS Selection** — click browser elements to jump to corresponding CSS rules
+- **Error Display** — shows HTML/CSS validation errors inline
+- **WebSocket Communication** — fast, persistent connection between editor and browser
+- **Diff-based Updates** — efficient DOM updates using minimal operations
+- **TypeScript Support** — live preview for `.ts` and `.tsx` files
+- **WebSocket Reconnection** — automatic reconnection with visual status indicator
+- **Custom Error Handlers** — configurable HTML/CSS validation rules
 - **Mobile Preview** — QR code generation for testing on mobile devices
-- **Debounced Updates** — Efficient bandwidth usage with 100ms debounce
+- **Debounced Updates** — efficient bandwidth usage with 100ms debounce
 
-## Tech Stack
+## Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                         Architecture                            │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                 │
-│  ┌────────────┐    ┌──────────┐    ┌──────────┐    ┌──────────┐ │
-│  │  Neovim    │ -> │  Python  │ -> │  Node.js │ -> │ Browser  │ │
-│  | (Vimscript)|    │ (Bridge) │    │ (Server) │    | (Client) │ |
-│  └────────────┘    └──────────┘    └──────────┘    └──────────┘ │
-│                                                                 │
-├─────────────────────────────────────────────────────────────────┤
-│                         Technologies                            │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                 │
-│  Editor:    Vimscript / Lua                                     │
-│  Bridge:    Python 2/3 (HTTP communication)                     │
-│  Server:    Node.js + WebSocket                                 │
-│  Parsing:   htmlparser2, domhandler, postcss, csslint           │
-│  Client:    Vanilla JavaScript (no dependencies)                │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
+┌────────────┐      ┌──────────┐      ┌──────────┐      ┌──────────┐
+│   Neovim   │ ───→ │  Python  │ ───→ │  Node.js │ ───→ │ Browser  │
+│ (Vimscript │      │ (Bridge) │      │ (Server) │      │ (Client) │
+│    /Lua)   │      │          │      │          │      │          │
+└────────────┘      └──────────┘      └──────────┘      └──────────┘
+     Editor           HTTP link        WebSocket         Live DOM
 ```
+
+| Layer | Technology |
+|-------|-----------|
+| Editor | Vimscript / Lua |
+| Bridge | Python 2/3 (HTTP communication) |
+| Server | Node.js + WebSocket |
+| Parsing | htmlparser2, domhandler, postcss, csslint |
+| Client | Vanilla JavaScript (no dependencies) |
 
 ## Installation
 
@@ -54,13 +57,26 @@ A live preview plugin for Neovim that enables real-time editing of HTML, CSS, an
 - **Node.js** (v12 or higher)
 - **Python** 2.7+ or 3.x
 
+### Using lazy.nvim
+
+```lua
+{
+  'Hishantik/render.nvim',
+  ft = { 'html', 'css', 'javascript', 'typescript', 'tsx' },
+  build = function()
+    local plugin_dir = vim.fn.stdpath('data') .. '/lazy/render.nvim'
+    vim.fn.system('npm install --prefix ' .. plugin_dir .. '/server')
+  end,
+}
+```
+
 ### Using vim-plug
 
 ```vim
 Plug 'Hishantik/render.nvim'
 ```
 
-After installation, install dependencies:
+After installation:
 ```bash
 cd ~/.local/share/nvim/site/pack/render/start/render.nvim
 npm install --prefix server
@@ -72,89 +88,42 @@ npm install --prefix server
 use 'Hishantik/render.nvim'
 ```
 
-After installation, install dependencies:
+After installation:
 ```bash
 cd ~/.local/share/nvim/site/pack/packer/start/render.nvim
 npm install --prefix server
 ```
 
-### Using lazy.nvim
-
-```lua
-{
-  'Hishantik/render.nvim',
-  ft = { 'html', 'css', 'javascript', 'typescript', 'tsx' },
-  build = function()
-    -- Install Node.js dependencies on plugin installation/update
-    local plugin_dir = vim.fn.stdpath('data') .. '/lazy/render.nvim'
-    vim.fn.system('npm install --prefix ' .. plugin_dir .. '/server')
-  end,
-}
-```
-
-> **Note:** The `npm install --prefix server` command installs Node.js dependencies in the plugin's `server/` directory. Adjust paths based on your plugin manager's installation directory.
-
 ### Manual Installation
 
 ```bash
-# Clone the repository
 git clone https://github.com/hishantik/render.nvim.git ~/.config/nvim/plugged/render.nvim
-
-# Install Node.js dependencies
 cd ~/.config/nvim/plugged/render.nvim/server
 npm install
 ```
 
 ### Termux (Android)
 
-For Android devices using Termux:
-
 ```bash
-# Install required packages
 pkg install neovim nodejs termux-open iproute2
 
-# Clone plugin (or use a plugin manager)
 mkdir -p ~/.config/nvim/plugged
 git clone https://github.com/hishantik/render.nvim.git ~/.config/nvim/plugged/render.nvim
-
-# Install Node.js dependencies (skip native module compilation)
 cd ~/.config/nvim/plugged/render.nvim/server
 npm install --ignore-scripts
 ```
 
-> **Note:** `termux-open` is required for opening URLs in the browser on Android.
-> **Note:** `--ignore-scripts` skips native C++ module compilation which fails on Android without NDK.
-> **Note:** `iproute2` provides the `ip` command needed for LAN IP detection (required for mobile QR code preview).
-
-### Configuration for Termux
+> `termux-open` is required for opening URLs on Android. `--ignore-scripts` skips native C++ compilation that fails without NDK. `iproute2` provides the `ip` command for LAN IP detection.
 
 On Termux, `/tmp` is read-only. Configure the log path:
 
 ```lua
--- In init.lua
 vim.g.render_server_log = vim.fn.stdpath('data') .. '/render_server_logfile'
-```
-
-Example plugin config with lazy.nvim:
-
-```lua
-{
-  'hishantik/render.nvim',
-  ft = { 'html', 'css', 'javascript', 'typescript', 'tsx' },
-  build = function()
-    local plugin_dir = vim.fn.stdpath('data') .. '/lazy/render.nvim'
-    vim.fn.system('npm install --prefix ' .. plugin_dir .. '/server --ignore-scripts')
-  end,
-  config = function()
-    -- Use writable log path for Termux/Android
-    vim.g.render_server_log = vim.fn.stdpath('data') .. '/render_server_logfile'
-  end,
-}
 ```
 
 ## Usage
 
-### Basic Commands
+### Commands
 
 | Command | Description |
 |---------|-------------|
@@ -166,114 +135,34 @@ Example plugin config with lazy.nvim:
 | `:RenderConfigure {type} {rules}` | Configure validation rules |
 | `:RenderConfig` | Open config file (init.vim/init.lua) |
 
-### Getting Started
-
-1. Open an HTML file in Neovim
-2. Run `:Render` to start the server
-3. Edit your files and see changes in real-time
-4. Use `:RenderStop` to shut down when done
-
-### Example Workflow
+### Quick Start
 
 ```vim
-" Open an HTML file
 :e index.html
-
-" Start live preview
 :Render
-
-" Make changes - they appear instantly in the browser
-
-" Stop when finished
+" Edit your files — changes appear instantly in the browser
 :RenderStop
 ```
 
-## Using TypeScript Files
+### TypeScript
 
-TypeScript (.ts) and TSX (.tsx) files are automatically supported:
+`.ts` and `.tsx` files are automatically supported. Just open and `:Render` as usual.
 
-1. Open a TypeScript file: `:e component.tsx`
-2. Run `:Render` as usual
-3. JavaScript changes are reflected in real-time
+### Mobile Preview
 
-## Using Mobile Preview
-
-Test your designs on mobile devices connected to the same network.
-
-### Setup for Local Network Access
-
-```vim
-" In init.vim (Vim)
-let g:render_server_allow_remote_connections = 1
-```
+Test on mobile devices connected to the same network:
 
 ```lua
--- In init.lua (Neovim)
+-- In init.lua
 vim.g.render_server_allow_remote_connections = 1
 ```
 
-### Generate QR Code
-
 ```vim
-" Start the server first
 :Render
-
-" Open QR code page in browser
-:RenderMobile
+:RenderMobile    " Opens QR code page — scan with your phone
 ```
-
-The QR code will automatically use your LAN IP (e.g., `http://192.168.1.100:13378/qr`) when remote connections are enabled. Scan with your phone to preview.
-
-## Custom Error Handlers
-
-Configure validation rules for HTML and CSS to match your project's standards.
-
-### Configure HTML Rules
-
-```vim
-" In init.vim
-let g:render_html_rules = {
-    \ 'tag-pair': v:true,
-    \ 'attr-lowercase': v:true,
-    \ 'doctype-first': v:false
-\}
-
-" Or use RenderConfigure command
-:RenderConfigure html {'tag-pair': v:true, 'doctype-first': v:false}
-```
-
-```lua
--- In init.lua
-vim.g.render_html_rules = {
-    ['tag-pair'] = true,
-    ['attr-lowercase'] = true,
-    ['doctype-first'] = false
-}
-```
-
-### Configure CSS Rules
-
-```vim
-" Enable specific CSSLint rules
-let g:render_csslint_rules = ['compatible-vendor-prefixes', 'box-model']
-```
-
-```lua
--- In init.lua
-vim.g.render_csslint_rules = { 'compatible-vendor-prefixes', 'box-model' }
-```
-
-## WebSocket Reconnection
-
-The plugin automatically handles connection drops with exponential backoff reconnection:
-
-1. Connection lost → Status indicator shows "reconnecting..."
-2. Exponential backoff: 1s, 2s, 4s, 8s... up to 30s max
-3. Connection restored → Status indicator disappears
 
 ## Configuration
-
-### Options
 
 | Option | Default | Description |
 |--------|---------|-------------|
@@ -289,46 +178,9 @@ The plugin automatically handles connection drops with exponential backoff recon
 | `g:render_csslint_rules` | `[]` | Custom CSSLint rules |
 | `g:render_server_allow_remote_connections` | `0` | Allow mobile/network access |
 
-### Quick Configuration
-
-Use `:RenderConfig` to open your config file quickly:
-
-```vim
-:RenderConfig
-```
-
-### Complete Configuration Example (Vim)
-
-```vim
-" Use Chrome instead of default browser
-let g:render_browser_command = 'google-chrome'
-
-" Don't auto-open browser
-let g:render_auto_start_browser = 0
-
-" Reload page on HTML save
-let g:render_refresh_on_save = 1
-
-" Allow mobile device access
-let g:render_server_allow_remote_connections = 1
-
-" Use specific port
-let g:render_server_port = 8080
-
-" Custom HTML validation rules
-let g:render_html_rules = {
-    \ 'tag-pair': v:true,
-    \ 'doctype-first': v:false
-\}
-
-" Custom CSSLint rules
-let g:render_csslint_rules = ['compatible-vendor-prefixes']
-```
-
-### Complete Configuration Example (Neovim/Lua)
+### Example (Lua)
 
 ```lua
--- In init.lua
 vim.g.render_browser_command = 'google-chrome'
 vim.g.render_auto_start_browser = 0
 vim.g.render_refresh_on_save = 1
@@ -336,44 +188,48 @@ vim.g.render_server_allow_remote_connections = 1
 vim.g.render_server_port = 8080
 
 vim.g.render_html_rules = {
-    ['tag-pair'] = true,
-    ['doctype-first'] = false
+  ['tag-pair'] = true,
+  ['doctype-first'] = false,
 }
 
 vim.g.render_csslint_rules = { 'compatible-vendor-prefixes' }
 ```
 
-## How It Works
+### Example (Vimscript)
 
+```vim
+let g:render_browser_command = 'google-chrome'
+let g:render_auto_start_browser = 0
+let g:render_refresh_on_save = 1
+let g:render_server_allow_remote_connections = 1
+let g:render_server_port = 8080
+
+let g:render_html_rules = {
+  \ 'tag-pair': v:true,
+  \ 'doctype-first': v:false
+\}
+
+let g:render_csslint_rules = ['compatible-vendor-prefixes']
 ```
-Vim ──Python──> Node Server ──WebSocket──> Browser
-```
+
+Use `:RenderConfig` to quickly open your config file.
+
+## How It Works
 
 1. **Server Start** — Python bridge launches Node.js server
 2. **File Serving** — HTML parsed into AST, client scripts injected
 3. **Change Detection** — Vim events trigger content sync (debounced 100ms)
-4. **Diff Updates** — Server computes minimal DOM operations
-5. **Broadcast** — Changes sent via WebSocket to browser
-6. **Apply** — Client updates DOM with minimal operations
+4. **Diff Updates** — server computes minimal DOM operations
+5. **Broadcast** — changes sent via WebSocket to browser
+6. **Apply** — client updates DOM with minimal operations
 
-### HTML Transformation
+### WebSocket Reconnection
 
-- Parses HTML into Abstract Syntax Tree (AST)
-- Assigns unique indices to elements for selection
-- Injects frontend.js and frontend.css
-- Diffs changes against existing AST for updates
+Automatic handling with exponential backoff:
 
-### Cursor Sync
-
-- Tracks cursor position via `CursorMoved` and `TextChanged`
-- Converts line/column to character index
-- Maps to AST element for browser highlighting
-
-### Buffer Updates
-
-- Changes are debounced (100ms) to reduce bandwidth
-- Sends full buffer after typing pause
-- Prevents excessive network traffic during rapid editing
+1. Connection lost → status indicator shows "reconnecting..."
+2. Exponential backoff: 1s, 2s, 4s, 8s... up to 30s max
+3. Connection restored → status indicator disappears
 
 ## Performance
 
@@ -383,10 +239,6 @@ Vim ──Python──> Node Server ──WebSocket──> Browser
 | Initial HTML parse | 50-200ms |
 | Diff update | 1-5ms |
 | Debounce delay | 100ms |
-
-- Memory usage scales with open files
-- Large files (>10MB) may cause delays
-- Debouncing reduces bandwidth significantly
 
 ## License
 
