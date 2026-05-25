@@ -85,7 +85,7 @@
 ### Using vim-plug
 
 ```vim
-Plug 'Hishantik/render.nvim'
+Plug 'hishantik/render.nvim'
 ```
 
 After installation:
@@ -97,7 +97,7 @@ npm install --prefix server
 ### Using packer.nvim
 
 ```lua
-use 'Hishantik/render.nvim'
+use 'hishantik/render.nvim'
 ```
 
 After installation:
