@@ -73,7 +73,7 @@
 
 ```lua
 {
-  'Hishantik/render.nvim',
+  'hishantik/render.nvim',
   ft = { 'html', 'css', 'javascript', 'typescript', 'tsx' },
   build = function()
     local plugin_dir = vim.fn.stdpath('data') .. '/lazy/render.nvim'
